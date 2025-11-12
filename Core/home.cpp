@@ -68,12 +68,25 @@ void Home::buildLayout()
         "}"
     );
 
-    // 内容容器
+    // 内容容器 - 实现 max-w-6xl (1152px) 限制
     QWidget *contentWidget = new QWidget();
     contentWidget->setStyleSheet("background: transparent;");
 
-    QVBoxLayout *contentLayout = new QVBoxLayout(contentWidget);
-    // max-w-6xl (1152px) 通过父容器限制，这里设置 padding: p-8 = 32px, mt-5 = 20px
+    // 外层容器：用于实现 max-width 和水平居中
+    QHBoxLayout *outerLayout = new QHBoxLayout(contentWidget);
+    outerLayout->setContentsMargins(0, 0, 0, 0);
+    outerLayout->setSpacing(0);
+
+    // 左侧弹性空间
+    outerLayout->addStretch(1);
+
+    // 中间内容区域 (max-width: 1152px)
+    QWidget *innerContent = new QWidget();
+    innerContent->setStyleSheet("background: transparent;");
+    innerContent->setMaximumWidth(1152);  // max-w-6xl = 1152px
+
+    QVBoxLayout *contentLayout = new QVBoxLayout(innerContent);
+    // p-8 = 32px, mt-5 = 20px
     contentLayout->setContentsMargins(32, 20, 32, 32);
     contentLayout->setSpacing(0);
     contentLayout->setAlignment(Qt::AlignTop);
@@ -99,6 +112,12 @@ void Home::buildLayout()
 
     // 底部弹性空间
     contentLayout->addStretch(1);
+
+    // 添加内容区域到外层布局
+    outerLayout->addWidget(innerContent);
+
+    // 右侧弹性空间
+    outerLayout->addStretch(1);
 
     scrollArea->setWidget(contentWidget);
 
@@ -210,18 +229,30 @@ QWidget* Home::createStatsGrid()
     QWidget *grid = new QWidget();
     grid->setStyleSheet("background: transparent;");
 
+    // React: grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6
+    // 使用 QHBoxLayout 实现水平网格布局
     QHBoxLayout *layout = new QHBoxLayout(grid);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(24);  // gap-6 = 24px
 
-    // 在线设备统计卡片
-    layout->addWidget(createStatCard());
-    layout->addStretch(1);
+    // 1. 在线设备 (橙色, Monitor 图标)
+    layout->addWidget(createStatCard("在线设备", "4", "🖥️", "#fb923c", "rgba(249, 115, 22, 0.1)"));
+
+    // 2. 设备总数 (蓝色, Grid 图标)
+    layout->addWidget(createStatCard("设备总数", "8", "📱", "#3b82f6", "rgba(59, 130, 246, 0.1)"));
+
+    // 3. 今日连接 (绿色, Activity 图标)
+    layout->addWidget(createStatCard("今日连接", "15", "📊", "#22c55e", "rgba(34, 197, 94, 0.1)"));
+
+    // 4. 平均延迟 (紫色, Zap 图标)
+    layout->addWidget(createStatCard("平均延迟", "8ms", "⚡", "#a855f7", "rgba(168, 85, 247, 0.1)"));
 
     return grid;
 }
 
-QWidget* Home::createStatCard()
+QWidget* Home::createStatCard(const QString &labelText, const QString &valueText,
+                               const QString &iconText, const QString &valueColor,
+                               const QString &iconBgColor)
 {
     QWidget *card = new QWidget();
     card->setStyleSheet(
@@ -244,17 +275,17 @@ QWidget* Home::createStatCard()
     layout->setSpacing(0);
     layout->setAlignment(Qt::AlignTop);
 
-    // 图标容器: w-12 h-12 = 48x48px, bg-orange-500/10, rounded-[14px], mb-3 = 12px
+    // 图标容器: w-12 h-12 = 48x48px, rounded-[14px], mb-3 = 12px
     QWidget *iconBg = new QWidget();
     iconBg->setFixedSize(48, 48);
     iconBg->setStyleSheet(
-        "QWidget {"
-        "    background: rgba(249, 115, 22, 0.1);"
+        QString("QWidget {"
+        "    background: %1;"
         "    border-radius: 14px;"
-        "}"
+        "}").arg(iconBgColor)
     );
 
-    QLabel *icon = new QLabel("🖥️", iconBg);
+    QLabel *icon = new QLabel(iconText, iconBg);
     icon->setGeometry(0, 0, 48, 48);
     icon->setAlignment(Qt::AlignCenter);
     icon->setStyleSheet("background: transparent; font-size: 24px;");
@@ -263,7 +294,7 @@ QWidget* Home::createStatCard()
     layout->addSpacing(12);  // mb-3
 
     // 标签: text-sm = 14px, mb-1 = 4px
-    QLabel *label = new QLabel("在线设备");
+    QLabel *label = new QLabel(labelText);
     label->setStyleSheet(
         "QLabel {"
         "    color: #64748b;"
@@ -277,17 +308,17 @@ QWidget* Home::createStatCard()
     layout->addWidget(label);
     layout->addSpacing(4);  // mb-1
 
-    // 数值: text-3xl = 30px, font-semibold = 600, text-orange-400 = #fb923c
-    QLabel *value = new QLabel("4");
+    // 数值: text-3xl = 30px, font-semibold = 600
+    QLabel *value = new QLabel(valueText);
     value->setStyleSheet(
-        "QLabel {"
-        "    color: #fb923c;"
+        QString("QLabel {"
+        "    color: %1;"
         "    font-size: 30px;"
         "    font-weight: 600;"
         "    line-height: 1.2;"
         "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
-        "}"
+        "}").arg(valueColor)
     );
 
     layout->addWidget(value);

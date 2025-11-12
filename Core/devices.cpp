@@ -76,11 +76,24 @@ void Devices::buildLayout()
         "}"
     );
 
-    // 内容容器
+    // 内容容器 - 实现 max-w-6xl (1152px) 限制
     QWidget *contentWidget = new QWidget();
     contentWidget->setStyleSheet("background: transparent;");
 
-    QVBoxLayout *contentLayout = new QVBoxLayout(contentWidget);
+    // 外层容器：用于实现 max-width 和水平居中
+    QHBoxLayout *outerLayout = new QHBoxLayout(contentWidget);
+    outerLayout->setContentsMargins(0, 0, 0, 0);
+    outerLayout->setSpacing(0);
+
+    // 左侧弹性空间
+    outerLayout->addStretch(1);
+
+    // 中间内容区域 (max-width: 1152px)
+    QWidget *innerContent = new QWidget();
+    innerContent->setStyleSheet("background: transparent;");
+    innerContent->setMaximumWidth(1152);  // max-w-6xl = 1152px
+
+    QVBoxLayout *contentLayout = new QVBoxLayout(innerContent);
     contentLayout->setContentsMargins(32, 20, 32, 32);  // p-8 = 32px, mt-5 = 20px
     contentLayout->setSpacing(0);
     contentLayout->setAlignment(Qt::AlignTop);
@@ -101,6 +114,12 @@ void Devices::buildLayout()
     contentLayout->addWidget(createRegisteredDevicesSection());
 
     contentLayout->addStretch(1);
+
+    // 添加内容区域到外层布局
+    outerLayout->addWidget(innerContent);
+
+    // 右侧弹性空间
+    outerLayout->addStretch(1);
 
     scrollArea->setWidget(contentWidget);
 
@@ -656,7 +675,7 @@ QLabel* Devices::createStatusBadge(bool online)
             "    background: rgba(16, 185, 129, 0.12);"
             "    color: #10b981;"
             "    border: 1px solid rgba(16, 185, 129, 0.2);"
-            "    border-radius: 12px;"
+            "    border-radius: 999px;"  // React: rounded-full
             "    font-size: 11px;"
             "    font-weight: 500;"
             "    padding: 4px 8px;"
@@ -669,7 +688,7 @@ QLabel* Devices::createStatusBadge(bool online)
             "    background: rgba(0, 0, 0, 0.03);"
             "    color: #64748b;"
             "    border: 1px solid rgba(0, 0, 0, 0.1);"
-            "    border-radius: 12px;"
+            "    border-radius: 999px;"  // React: rounded-full
             "    font-size: 11px;"
             "    font-weight: 500;"
             "    padding: 4px 8px;"

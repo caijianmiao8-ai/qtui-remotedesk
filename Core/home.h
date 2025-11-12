@@ -27,7 +27,9 @@ private:
     QWidget* createHeader();
     QWidget* createPairingHintCard();
     QWidget* createStatsGrid();
-    QWidget* createStatCard();
+    QWidget* createStatCard(const QString &labelText, const QString &valueText,
+                            const QString &iconText, const QString &valueColor,
+                            const QString &iconBgColor);
     QWidget* createMachineInfoCard();
     QWidget* createInfoItem(const QString &labelText, const QString &valueText, bool mono);
     QWidget* createNetworkStatusItem();

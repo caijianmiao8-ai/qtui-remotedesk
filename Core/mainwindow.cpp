@@ -621,7 +621,8 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     QMainWindow::resizeEvent(event);
 
     // 动态调整窗口控制按钮位置
+    // React: 右边距 24px，控制按钮宽度 120px，所以是 width - 144
     if (m_controlsWidget && ui->stackedWidget) {
-        m_controlsWidget->move(ui->stackedWidget->width() - 140, 20);
+        m_controlsWidget->move(ui->stackedWidget->width() - 144, 20);
     }
 }

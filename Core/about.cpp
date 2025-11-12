@@ -83,8 +83,20 @@ void About::buildLayout()
         "}"
     );
 
-    // React: max-w-4xl mx-auto p-8 mt-5
-    QVBoxLayout *mainLayout = new QVBoxLayout(ui->widget);
+    // React: max-w-4xl mx-auto p-8 mt-5 - 实现 max-w-4xl (896px) 限制
+    QHBoxLayout *outerLayout = new QHBoxLayout(ui->widget);
+    outerLayout->setContentsMargins(0, 0, 0, 0);
+    outerLayout->setSpacing(0);
+
+    // 左侧弹性空间
+    outerLayout->addStretch(1);
+
+    // 中间内容区域 (max-width: 896px)
+    QWidget *innerContent = new QWidget();
+    innerContent->setStyleSheet("background: transparent;");
+    innerContent->setMaximumWidth(896);  // max-w-4xl = 896px
+
+    QVBoxLayout *mainLayout = new QVBoxLayout(innerContent);
     mainLayout->setContentsMargins(32, 52, 32, 32);  // p-8 + mt-5
     mainLayout->setSpacing(0);
 
@@ -101,6 +113,12 @@ void About::buildLayout()
 
     // 添加弹性空间
     mainLayout->addStretch(1);
+
+    // 添加内容区域到外层布局
+    outerLayout->addWidget(innerContent);
+
+    // 右侧弹性空间
+    outerLayout->addStretch(1);
 }
 
 QWidget* About::createHeader()

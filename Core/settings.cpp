@@ -85,8 +85,20 @@ void Settings::buildLayout()
         "}"
     );
 
-    // 创建主布局 - 严格按照React代码
-    QVBoxLayout *mainLayout = new QVBoxLayout(ui->widget);
+    // 创建主布局 - 实现 max-w-4xl (896px) 限制
+    QHBoxLayout *outerLayout = new QHBoxLayout(ui->widget);
+    outerLayout->setContentsMargins(0, 0, 0, 0);
+    outerLayout->setSpacing(0);
+
+    // 左侧弹性空间
+    outerLayout->addStretch(1);
+
+    // 中间内容区域 (max-width: 896px)
+    QWidget *innerContent = new QWidget();
+    innerContent->setStyleSheet("background: transparent;");
+    innerContent->setMaximumWidth(896);  // max-w-4xl = 896px
+
+    QVBoxLayout *mainLayout = new QVBoxLayout(innerContent);
     mainLayout->setContentsMargins(32, 20, 32, 32);  // p-8 = 32px, mt-5 = 20px
     mainLayout->setSpacing(0);
 
@@ -99,6 +111,12 @@ void Settings::buildLayout()
 
     // 添加弹性空间
     mainLayout->addStretch(1);
+
+    // 添加内容区域到外层布局
+    outerLayout->addWidget(innerContent);
+
+    // 右侧弹性空间
+    outerLayout->addStretch(1);
 }
 
 QWidget* Settings::createHeader()
