@@ -1,12 +1,23 @@
 #include "home.h"
 #include "ui_home.h"
+#include <QScrollArea>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QGridLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QWidget>
+#include <QGraphicsDropShadowEffect>
 
 Home::Home(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Home)
 {
     ui->setupUi(this);
-    initUi();
+    setStyleSheet("background: transparent;");
+
+    // 完全重新构建布局
+    buildCompleteLayout();
 }
 
 Home::~Home()
@@ -14,618 +25,481 @@ Home::~Home()
     delete ui;
 }
 
-void Home::initUi()
+void Home::buildCompleteLayout()
 {
-    // 超浅色透明滚动条设置
-    ui->scrollArea->setStyleSheet(
-        "QScrollArea {"
-        "    border: none;"
-        "    background-color: transparent;"
-        "}"
+    // 清空现有布局
+    if (layout()) {
+        QLayoutItem *item;
+        while ((item = layout()->takeAt(0))) {
+            if (item->widget()) item->widget()->deleteLater();
+            delete item;
+        }
+        delete layout();
+    }
+
+    // 创建主滚动区域
+    QScrollArea *scrollArea = new QScrollArea(this);
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setFrameShape(QFrame::NoFrame);
+    scrollArea->setStyleSheet(
+        "QScrollArea { background: transparent; border: none; }"
         "QScrollBar:vertical {"
-        "    background: transparent;"  // 垂直滚动条背景透明
-        "    width: 8px;"
-        "    margin: 0px;"
+        "    background: transparent; width: 4px; margin: 0;"
         "}"
         "QScrollBar::handle:vertical {"
-        "    background: rgba(0, 0, 0, 0.15);"  // 更浅的颜色，透明度降低
-        "    border-radius: 4px;"
-        "    min-height: 20px;"
+        "    background: rgba(0,0,0,0.18); border-radius: 2px; min-height: 20px;"
         "}"
         "QScrollBar::handle:vertical:hover {"
-        "    background: rgba(0, 0, 0, 0.25);"  // 悬停时稍微加深
+        "    background: rgba(0,0,0,0.36);"
         "}"
         "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {"
-        "    border: none;"
-        "    background: none;"
         "    height: 0px;"
         "}"
-        "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {"
-        "    background: transparent;"  // 滑块前后区域也透明
-        "}"
-        "QScrollBar:horizontal {"
-        "    background: transparent;"  // 水平滚动条背景透明
-        "    height: 8px;"
-        "    margin: 0px;"
-        "}"
-        "QScrollBar::handle:horizontal {"
-        "    background: rgba(0, 0, 0, 0.15);"  // 更浅的颜色，透明度降低
-        "    border-radius: 4px;"
-        "    min-width: 20px;"
-        "}"
-        "QScrollBar::handle:horizontal:hover {"
-        "    background: rgba(0, 0, 0, 0.25);"  // 悬停时稍微加深
-        "}"
-        "QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {"
-        "    border: none;"
-        "    background: none;"
-        "    width: 0px;"
-        "}"
-        "QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {"
-        "    background: transparent;"  // 滑块前后区域也透明
-        "}");
+    );
 
-    setupHomeLayout();
-    setupHomeHeader();
-    setupWidget2();
-    setupWidget3();
-    setupWidget4();
-}
+    // 创建滚动内容容器
+    QWidget *contentWidget = new QWidget();
+    contentWidget->setStyleSheet("background: transparent;");
+    QVBoxLayout *contentLayout = new QVBoxLayout(contentWidget);
+    contentLayout->setContentsMargins(32, 20, 32, 32);  // p-8 = 32px
+    contentLayout->setSpacing(0);
 
-void Home::setupHomeLayout()
-{
-    // 获取包含所有 widget 的父布局
-    QVBoxLayout *mainLayout = qobject_cast<QVBoxLayout*>(ui->scrollAreaWidgetContents->layout());
-    if (!mainLayout) return;
+    // 1. 添加标题区域
+    contentLayout->addWidget(createHeaderSection());
+    contentLayout->addSpacing(16);  // mb-4 = 16px
 
-    // 清除现有内容
-    QLayoutItem *child;
-    while ((child = mainLayout->takeAt(0)) != nullptr) {
-        delete child;
-    }
+    // 2. 添加提示卡片
+    contentLayout->addWidget(createTipCard());
+    contentLayout->addSpacing(32);  // mb-8 = 32px
 
-    // 重新添加 widget 和间隔
-    mainLayout->addWidget(ui->widget_1);
-    mainLayout->addSpacing(0);  // widget_1 和 widget_2 之间的间距
-    mainLayout->addWidget(ui->widget_2);
-    mainLayout->addSpacing(25);  // widget_2 和 widget_3 之间的间距
-    mainLayout->addWidget(ui->widget_3);
-    mainLayout->addSpacing(25);  // widget_3 和 widget_4 之间的间距
-    mainLayout->addWidget(ui->widget_4);
-    mainLayout->addStretch(1);   // 底部弹性空间
-}
+    // 3. 添加统计卡片
+    contentLayout->addWidget(createStatsSection());
+    contentLayout->addSpacing(24);  // mb-6 = 24px
 
-void Home::setupHomeHeader()
-{
-    // 清除现有布局
-    if (ui->widget_1->layout()) {
-        delete ui->widget_1->layout();
-    }
+    // 4. 添加本机信息卡片
+    contentLayout->addWidget(createMachineInfoCard());
+    contentLayout->addSpacing(24);  // mb-6 = 24px
 
-    // 创建新的垂直布局
-    QVBoxLayout *layout = new QVBoxLayout(ui->widget_1);
-    layout->setContentsMargins(0, 50, 0, 18);  // 上边距，让内容离顶部远
+    // 5. 添加快速操作卡片
+    contentLayout->addWidget(createQuickActionsCard());
 
-    // 设置 Welcome back 标签
-    ui->label->setText("Welcome back");
-    ui->label->setStyleSheet(
-        "QLabel {"
-        "    color: #000000;"
-        "    font-size: 36px;"
-        "    font-weight: bold;"
-        "    font-family: 'Segoe UI', Arial, sans-serif;"
-        "    background-color: transparent;"
-        "    border: none;"
-        "    margin: 0;"
-        "    padding: 0;"
-        "}");
+    contentLayout->addStretch(1);
 
-    // 设置描述标签
-    ui->label_2->setText("This machine is available for remote control (host mode)");
-    ui->label_2->setStyleSheet(
-        "QLabel {"
-        "    color: #666666;"
-        "    font-size: 16px;"
-        "    font-weight: normal;"
-        "    font-family: 'Segoe UI', Arial, sans-serif;"
-        "    background-color: transparent;"
-        "    border: none;"
-        "    margin: 0;"
-        "    padding: 0;"
-        "}");
+    scrollArea->setWidget(contentWidget);
 
-    // 添加标签到布局，使用很小的间距
-    layout->addWidget(ui->label);
-    layout->addSpacing(0);  // 3px间距，让两个标签很近
-    layout->addWidget(ui->label_2);
-}
-
-void Home::setupWidget2()
-{
-    ui->widget_2->setStyleSheet(
-        "QWidget#widget_2 {"
-        "    background-color: #ffffff;"
-        "    border-radius: 15px;"
-        "    border: none;"
-        "}");
-
-    // 创建主阴影效果（底部阴影）
-    QGraphicsDropShadowEffect *bottomShadow = new QGraphicsDropShadowEffect(this);
-    bottomShadow->setBlurRadius(28);
-    bottomShadow->setColor(QColor(0, 0, 0, 15));
-    bottomShadow->setXOffset(0);
-    bottomShadow->setYOffset(8);  // 主要向下偏移
-
-    // 创建轻微的顶部阴影
-    QGraphicsDropShadowEffect *topShadow = new QGraphicsDropShadowEffect(this);
-    topShadow->setBlurRadius(15);
-    topShadow->setColor(QColor(0, 0, 0, 15));
-    topShadow->setXOffset(0);
-    topShadow->setYOffset(2);     // 轻微的向上偏移
-
-    // 应用阴影效果
-    ui->widget_2->setGraphicsEffect(bottomShadow);
-
-    if (!ui->widget_2->layout()) {
-        QHBoxLayout *layout = new QHBoxLayout(ui->widget_2);
-        layout->setContentsMargins(20, 12, 15, 20);
-        layout->setSpacing(12);
-    }
-
-    setupIconLabel();
-    setupTipLabel();
-
-    QHBoxLayout *layout = qobject_cast<QHBoxLayout*>(ui->widget_2->layout());
-    if (layout && layout->count() == 0) {
-        layout->addWidget(ui->label_3);
-        layout->addWidget(ui->label_4, 1);
-    }
-}
-
-void Home::setupIconLabel()
-{
-    // 设置图标 - 使用你的图标路径
-    QPixmap iconPixmap(":/qss/icon/logo_04.png");  // 替换为你的图标路径
-    iconPixmap = iconPixmap.scaled(20, 20, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    ui->label_3->setPixmap(iconPixmap);
-    ui->label_3->setScaledContents(true);
-    ui->label_3->setFixedSize(24, 24);  // 固定图标大小
-
-    // 图标标签样式
-    ui->label_3->setStyleSheet(
-        "QLabel {"
-        "    background-color: transparent;"
-        "    border: none;"
-        "    margin: 0;"
-        "    padding: 0;"
-        "}");
-}
-
-void Home::setupTipLabel()
-{
-    // 设置提示文字
-    ui->label_4->setText("Tip: Sign in with the same account on your phone to remotely control this computer.");
-
-    // 设置文字样式
-    ui->label_4->setStyleSheet(
-        "QLabel {"
-        "    color: #555555;"           // 深灰色文字
-        "    font-size: 13px;"          // 稍小的字体
-        "    font-weight: normal;"
-        "    font-family: 'Segoe UI', Arial, sans-serif;"
-        "    background-color: transparent;"
-        "    border: none;"
-        "    margin: 0;"
-        "    padding: 0;"
-        "    line-height: 1.4;"         // 行高，改善多行文本阅读
-        "}");
-
-    // 允许文字换行
-    ui->label_4->setWordWrap(true);
-    ui->label_4->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-}
-
-void Home::setupWidget3()
-{
-    // 设置 widget_3 的基本样式（与 widget_2 保持一致）
-    ui->widget_3->setStyleSheet(
-        "QWidget#widget_3 {"
-        "    background-color: #ffffff;"
-        "    border-radius: 25px;"
-        "    border: none;"
-        "}");
-    ui->widget_3->setAttribute(Qt::WA_StyledBackground, true);
-
-    // 创建主阴影效果（底部阴影）
-    QGraphicsDropShadowEffect *bottomShadow = new QGraphicsDropShadowEffect(this);
-    bottomShadow->setBlurRadius(28);
-    bottomShadow->setColor(QColor(0, 0, 0, 15));
-    bottomShadow->setXOffset(0);
-    bottomShadow->setYOffset(8);  // 主要向下偏移
-
-    // 创建轻微的顶部阴影
-    QGraphicsDropShadowEffect *topShadow = new QGraphicsDropShadowEffect(this);
-    topShadow->setBlurRadius(15);
-    topShadow->setColor(QColor(0, 0, 0, 15));
-    topShadow->setXOffset(0);
-    topShadow->setYOffset(2);     // 轻微的向上偏移
-
-    // 应用阴影效果
-    ui->widget_3->setGraphicsEffect(bottomShadow);
-
-    // 设置 widget_3 的布局
-    setupWidget3Layout();
-
-    // 设置标题
-    setupWidget3Title();
-
-    // 设置信息网格
-    setupWidget3InfoGrid();
-}
-
-void Home::setupWidget3Layout()
-{
-    if (ui->widget_3->layout()) {
-        delete ui->widget_3->layout();
-    }
-
-    QVBoxLayout *mainLayout = new QVBoxLayout(ui->widget_3);
-
-    // 统一设置上下边距为30，保持对称
-    mainLayout->setContentsMargins(50, 60, 50, 55);  // 上下都是30
-    mainLayout->setSpacing(30);  // 标题与网格间距也是30
-
-    mainLayout->setAlignment(Qt::AlignTop);
-}
-
-void Home::setupWidget3Title()
-{
-    // 设置标题
-    ui->label_5->setText("This Machine");
-    ui->label_5->setStyleSheet(
-        "QLabel {"
-        "    color: #000000;"
-        "    font-size: 18px;"
-        "    font-weight: bold;"
-        "    font-family: 'Segoe UI', Arial, sans-serif;"
-        "    background-color: transparent;"
-        "    border: none;"
-        "    margin: 0;"
-        "    padding: 0;"
-        "}");
-
-    // 将标题添加到布局
-    QVBoxLayout *mainLayout = qobject_cast<QVBoxLayout*>(ui->widget_3->layout());
-    if (mainLayout) {
-        mainLayout->addWidget(ui->label_5);
-    }
-}
-
-void Home::setupWidget3InfoGrid()
-{
-    QGridLayout *gridLayout = new QGridLayout();
-    gridLayout->setContentsMargins(0, 0, 0, 0);
-    gridLayout->setHorizontalSpacing(330);
-
-    // 减小行间距，主要控制信息项之间的垂直距离
-    gridLayout->setVerticalSpacing(45);  // 从30减小到15
-
-    // 第一行第一列：设备名称
-    setupInfoItem(gridLayout, 0, 0, ui->label_6, ui->label_7, "Device Name", "My-Desktop-PC", 15);  // 添加内部间距参数
-
-    // 第一行第二列：设备ID
-    setupInfoItem(gridLayout, 0, 1, ui->label_8, ui->label_9, "Device Id", "PC-001-2024", 15);
-
-    // 第二行第一列：本地IP
-    setupInfoItem(gridLayout, 1, 0, ui->label_10, ui->label_11, "Local Ip", "192.168.1.100", 15);
-
-    // 第二行第二列：网络状态
-    setupNetworkStatusItem(gridLayout, 1, 1, ui->label_12, 15);  // 添加内部间距参数
-
-    QVBoxLayout *mainLayout = qobject_cast<QVBoxLayout*>(ui->widget_3->layout());
-    if (mainLayout) {
-        mainLayout->addLayout(gridLayout);
-
-        // 添加底部弹性空间，确保内容顶部对齐
-        mainLayout->addStretch(1);
-    }
-}
-
-void Home::setupInfoItem(QGridLayout *gridLayout, int row, int col,
-                         QLabel *titleLabel, QLabel *valueLabel,
-                         const QString &title, const QString &value, int verticalSpacing)
-{
-    // 创建容器widget来控制内部间距
-    QWidget *itemContainer = new QWidget();
-    // 设置容器背景色为白色
-    itemContainer->setStyleSheet("background-color: #ffffff;");
-    QVBoxLayout *itemLayout = new QVBoxLayout(itemContainer);
-    itemLayout->setContentsMargins(0, 0, 0, 0);
-    itemLayout->setSpacing(verticalSpacing);  // 控制标题与值的间距
-
-    // 设置标题标签
-    titleLabel->setText(title);
-    titleLabel->setStyleSheet(
-        "QLabel {"
-        "    color: #666666;"
-        "    font-size: 15px;"
-        "    font-weight: normal;"
-        "    font-family: 'Segoe UI', Arial, sans-serif;"
-        "    background-color: #ffffff;"
-        "    border: null;"
-        "    margin: 0;"
-        "    padding: 0;"
-        "}");
-
-    // 设置值标签
-    valueLabel->setText(value);
-    valueLabel->setStyleSheet(
-        "QLabel {"
-        "    color: #000000;"
-        "    font-size: 14px;"
-        "    font-family: 'Segoe UI', Arial, sans-serif;"
-        "    background-color: #ffffff;"
-        "    border: none;"
-        "    margin: 0;"
-        "    padding: 0;"
-        "}");
-
-    // 添加到item布局
-    itemLayout->addWidget(titleLabel);
-    itemLayout->addWidget(valueLabel);
-
-    // 设置容器左对齐
-    itemLayout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-
-    // 将整个容器添加到网格布局
-    gridLayout->addWidget(itemContainer, row, col);
-}
-
-void Home::setupNetworkStatusItem(QGridLayout *gridLayout, int row, int col, QLabel *titleLabel, int verticalSpacing)
-{
-    // 创建主容器
-    QWidget *mainContainer = new QWidget();
-    // 设置容器背景色为白色
-    mainContainer->setStyleSheet("background-color: #ffffff;");
-    QVBoxLayout *mainLayout = new QVBoxLayout(mainContainer);
+    // 设置主布局
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0, 0, 0, 0);
-    mainLayout->setSpacing(verticalSpacing);
-    mainLayout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    mainLayout->addWidget(scrollArea);
+}
 
-    // 设置标题
-    titleLabel->setText("Network Status");
-    titleLabel->setStyleSheet(
+QWidget* Home::createHeaderSection()
+{
+    QWidget *header = new QWidget();
+    header->setStyleSheet("background: transparent;");
+    QVBoxLayout *layout = new QVBoxLayout(header);
+    layout->setContentsMargins(0, 20, 0, 0);
+    layout->setSpacing(8);  // mb-2 = 8px
+
+    // 主标题
+    QLabel *title = new QLabel("欢迎回来");
+    title->setStyleSheet(
         "QLabel {"
-        "    color: #666666;"
-        "    font-size: 15px;"
-        "    font-weight: normal;"
-        "    font-family: 'Segoe UI', Arial, sans-serif;"
-        "    background-color: #ffffff;"
-        "    border: none;"
-        "    margin: 0;"
-        "    padding: 0;"
-        "}");
+        "    color: #1e293b;"
+        "    font-size: 36px;"          // text-4xl
+        "    font-weight: 600;"          // font-semibold
+        "    background: transparent;"
+        "}"
+    );
 
-    // 创建网络状态显示容器
-    QWidget *statusContainer = new QWidget();
-    QHBoxLayout *statusLayout = new QHBoxLayout(statusContainer);
+    // 副标题
+    QLabel *subtitle = new QLabel("此电脑已准备好被远程接管（被控端）");
+    subtitle->setStyleSheet(
+        "QLabel {"
+        "    color: #64748b;"           // text-secondary
+        "    font-size: 14px;"
+        "    background: transparent;"
+        "}"
+    );
+
+    layout->addWidget(title);
+    layout->addWidget(subtitle);
+
+    return header;
+}
+
+QWidget* Home::createTipCard()
+{
+    QWidget *card = new QWidget();
+    card->setStyleSheet(
+        "QWidget {"
+        "    background: rgba(255, 255, 255, 0.7);"
+        "    border: 1px solid rgba(0, 0, 0, 0.05);"
+        "    border-radius: 20px;"
+        "}"
+    );
+
+    // 添加阴影
+    QGraphicsDropShadowEffect *shadow = new QGraphicsDropShadowEffect();
+    shadow->setBlurRadius(60);
+    shadow->setColor(QColor(0, 0, 0, 15));
+    shadow->setOffset(0, 30);
+    card->setGraphicsEffect(shadow);
+
+    QHBoxLayout *layout = new QHBoxLayout(card);
+    layout->setContentsMargins(16, 16, 16, 16);
+    layout->setSpacing(12);
+
+    // 图标容器
+    QWidget *iconContainer = new QWidget();
+    iconContainer->setFixedSize(32, 32);
+    iconContainer->setStyleSheet(
+        "QWidget {"
+        "    background: rgba(10, 132, 255, 0.12);"
+        "    border-radius: 14px;"
+        "}"
+    );
+
+    // 图标（使用文字代替，实际应该用 SVG 图标）
+    QLabel *icon = new QLabel("ℹ️", iconContainer);
+    icon->setGeometry(0, 0, 32, 32);
+    icon->setAlignment(Qt::AlignCenter);
+    icon->setStyleSheet("background: transparent; color: #0A84FF; font-size: 16px;");
+
+    // 提示文本
+    QLabel *text = new QLabel("提示：请在手机端使用同一账号登录，即可从手机远程接管本电脑。");
+    text->setWordWrap(true);
+    text->setStyleSheet(
+        "QLabel {"
+        "    color: #64748b;"
+        "    font-size: 12px;"
+        "    line-height: 1.5;"
+        "    background: transparent;"
+        "}"
+    );
+
+    layout->addWidget(iconContainer);
+    layout->addWidget(text, 1);
+
+    return card;
+}
+
+QWidget* Home::createStatsSection()
+{
+    QWidget *section = new QWidget();
+    section->setStyleSheet("background: transparent;");
+    QHBoxLayout *layout = new QHBoxLayout(section);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(24);  // gap-6 = 24px
+
+    // 在线设备统计卡片
+    QWidget *statCard = new QWidget();
+    statCard->setFixedSize(250, 140);
+    statCard->setStyleSheet(
+        "QWidget {"
+        "    background: rgba(255, 255, 255, 0.7);"
+        "    border: 1px solid rgba(0, 0, 0, 0.05);"
+        "    border-radius: 20px;"
+        "}"
+    );
+
+    // 添加阴影
+    QGraphicsDropShadowEffect *shadow = new QGraphicsDropShadowEffect();
+    shadow->setBlurRadius(60);
+    shadow->setColor(QColor(0, 0, 0, 15));
+    shadow->setOffset(0, 30);
+    statCard->setGraphicsEffect(shadow);
+
+    QVBoxLayout *cardLayout = new QVBoxLayout(statCard);
+    cardLayout->setContentsMargins(24, 24, 24, 24);
+    cardLayout->setSpacing(12);
+
+    // 图标容器（橙色）
+    QWidget *iconBg = new QWidget();
+    iconBg->setFixedSize(48, 48);
+    iconBg->setStyleSheet(
+        "QWidget {"
+        "    background: rgba(249, 115, 22, 0.1);"
+        "    border-radius: 14px;"
+        "}"
+    );
+
+    QLabel *icon = new QLabel("🖥️", iconBg);
+    icon->setGeometry(0, 0, 48, 48);
+    icon->setAlignment(Qt::AlignCenter);
+    icon->setStyleSheet("background: transparent; font-size: 24px;");
+
+    // 标签
+    QLabel *label = new QLabel("在线设备");
+    label->setStyleSheet(
+        "QLabel {"
+        "    color: #64748b;"
+        "    font-size: 14px;"
+        "    background: transparent;"
+        "}"
+    );
+
+    // 数值
+    QLabel *value = new QLabel("4");
+    value->setStyleSheet(
+        "QLabel {"
+        "    color: #f97316;"           // text-orange-400
+        "    font-size: 30px;"
+        "    font-weight: 600;"
+        "    background: transparent;"
+        "}"
+    );
+
+    cardLayout->addWidget(iconBg);
+    cardLayout->addWidget(label);
+    cardLayout->addWidget(value);
+    cardLayout->addStretch();
+
+    layout->addWidget(statCard);
+    layout->addStretch(1);
+
+    return section;
+}
+
+QWidget* Home::createMachineInfoCard()
+{
+    QWidget *card = new QWidget();
+    card->setStyleSheet(
+        "QWidget {"
+        "    background: rgba(255, 255, 255, 0.7);"
+        "    border: 1px solid rgba(0, 0, 0, 0.05);"
+        "    border-radius: 20px;"
+        "}"
+    );
+
+    // 添加阴影
+    QGraphicsDropShadowEffect *shadow = new QGraphicsDropShadowEffect();
+    shadow->setBlurRadius(60);
+    shadow->setColor(QColor(0, 0, 0, 15));
+    shadow->setOffset(0, 30);
+    card->setGraphicsEffect(shadow);
+
+    QVBoxLayout *layout = new QVBoxLayout(card);
+    layout->setContentsMargins(32, 32, 32, 32);  // p-8 = 32px
+    layout->setSpacing(24);  // gap-6 = 24px
+
+    // 标题
+    QLabel *title = new QLabel("本机信息");
+    title->setStyleSheet(
+        "QLabel {"
+        "    color: #1e293b;"
+        "    font-size: 24px;"           // text-2xl
+        "    font-weight: 600;"          // font-semibold
+        "    background: transparent;"
+        "}"
+    );
+    layout->addWidget(title);
+
+    // 信息网格
+    QGridLayout *gridLayout = new QGridLayout();
+    gridLayout->setHorizontalSpacing(24);
+    gridLayout->setVerticalSpacing(24);
+
+    // 设备名称
+    gridLayout->addWidget(createInfoItem("设备名称", "我的工作电脑"), 0, 0);
+
+    // 设备ID
+    gridLayout->addWidget(createInfoItem("设备ID", "RD-2024-10241502"), 0, 1);
+
+    // 本机IP
+    gridLayout->addWidget(createInfoItem("本机IP", "192.168.1.100"), 1, 0);
+
+    // 网络状态
+    gridLayout->addWidget(createNetworkStatusItem(), 1, 1);
+
+    layout->addLayout(gridLayout);
+
+    return card;
+}
+
+QWidget* Home::createInfoItem(const QString &label, const QString &value)
+{
+    QWidget *item = new QWidget();
+    item->setStyleSheet("background: transparent;");
+    QVBoxLayout *layout = new QVBoxLayout(item);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(8);
+
+    QLabel *labelWidget = new QLabel(label);
+    labelWidget->setStyleSheet(
+        "QLabel {"
+        "    color: #64748b;"
+        "    font-size: 14px;"
+        "    background: transparent;"
+        "}"
+    );
+
+    QLabel *valueWidget = new QLabel(value);
+    valueWidget->setStyleSheet(
+        "QLabel {"
+        "    color: #1e293b;"
+        "    font-size: 18px;"
+        "    font-weight: 500;"
+        "    background: transparent;"
+        "}"
+    );
+
+    layout->addWidget(labelWidget);
+    layout->addWidget(valueWidget);
+
+    return item;
+}
+
+QWidget* Home::createNetworkStatusItem()
+{
+    QWidget *item = new QWidget();
+    item->setStyleSheet("background: transparent;");
+    QVBoxLayout *layout = new QVBoxLayout(item);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(8);
+
+    QLabel *label = new QLabel("网络状态");
+    label->setStyleSheet(
+        "QLabel {"
+        "    color: #64748b;"
+        "    font-size: 14px;"
+        "    background: transparent;"
+        "}"
+    );
+
+    // 状态容器
+    QWidget *statusWidget = new QWidget();
+    statusWidget->setStyleSheet("background: transparent;");
+    QHBoxLayout *statusLayout = new QHBoxLayout(statusWidget);
     statusLayout->setContentsMargins(0, 0, 0, 0);
     statusLayout->setSpacing(8);
 
-    // 创建绿色状态指示器
-    QLabel *statusIndicator = new QLabel();
-    statusIndicator->setFixedSize(10, 10);
-    statusIndicator->setStyleSheet(
-        "QLabel {"
-        "    background-color: #22c55e;"
+    // 绿色指示点
+    QWidget *indicator = new QWidget();
+    indicator->setFixedSize(10, 10);
+    indicator->setStyleSheet(
+        "QWidget {"
+        "    background: #22c55e;"      // green-400
         "    border-radius: 5px;"
-        "    border: none;"
-        "}");
+        "}"
+    );
 
-    // 创建状态文本
-    QLabel *statusText = new QLabel("LAN ONLINE");
-    statusText->setStyleSheet(
+    // 状态文本
+    QLabel *status = new QLabel("局域网在线");
+    status->setStyleSheet(
         "QLabel {"
         "    color: #22c55e;"
-        "    font-size: 14px;"
-        "    font-family: 'Segoe UI', Arial, sans-serif;"
-        "    background-color: #ffffff;"
-        "    border: none;"
-        "    margin: 0;"
-        "    padding: 0;"
-        "}");
-
-    // 添加到状态容器
-    statusLayout->addWidget(statusIndicator);
-    statusLayout->addWidget(statusText);
-    statusLayout->addStretch(1);
-
-    // 添加到主容器
-    mainLayout->addWidget(titleLabel);
-    mainLayout->addWidget(statusContainer);
-
-    // 添加到网格布局
-    gridLayout->addWidget(mainContainer, row, col);
-}
-
-void Home::setupWidget4()
-{
-    // 设置 widget_4 的基本样式（与 widget_2、widget_3 保持一致）
-    ui->widget_4->setStyleSheet(
-        "QWidget#widget_4 {"
-        "    background-color: #ffffff;"
-        "    border-radius: 25px;"
-        "    border: none;"
-        "}");
-    ui->widget_4->setAttribute(Qt::WA_StyledBackground, true);
-
-    // 创建主阴影效果（底部阴影）
-    QGraphicsDropShadowEffect *bottomShadow = new QGraphicsDropShadowEffect(this);
-    bottomShadow->setBlurRadius(28);
-    bottomShadow->setColor(QColor(0, 0, 0, 15));
-    bottomShadow->setXOffset(0);
-    bottomShadow->setYOffset(8);  // 主要向下偏移
-
-    // 创建轻微的顶部阴影
-    QGraphicsDropShadowEffect *topShadow = new QGraphicsDropShadowEffect(this);
-    topShadow->setBlurRadius(15);
-    topShadow->setColor(QColor(0, 0, 0, 15));
-    topShadow->setXOffset(0);
-    topShadow->setYOffset(2);     // 轻微的向上偏移
-
-    // 应用阴影效果
-    ui->widget_4->setGraphicsEffect(bottomShadow);
-
-    setupWidget4Layout();
-    setupWidget4Title();
-    setupWidget4QuickActions();
-}
-
-void Home::setupWidget4Layout()
-{
-    if (ui->widget_4->layout()) {
-        delete ui->widget_4->layout();
-    }
-
-    QVBoxLayout *mainLayout = new QVBoxLayout(ui->widget_4);
-    mainLayout->setContentsMargins(50, 30, 50, 30);
-    mainLayout->setSpacing(30);
-    mainLayout->setAlignment(Qt::AlignTop);
-}
-
-void Home::setupWidget4Title()
-{
-    QLabel *titleLabel = new QLabel("Quick Actions");
-    titleLabel->setStyleSheet(
-        "QLabel {"
-        "    color: #000000;"
         "    font-size: 18px;"
-        "    font-weight: bold;"
-        "    font-family: 'Segoe UI', Arial, sans-serif;"
-        "    background-color: transparent;"
-        "    border: none;"
-        "    margin: 0;"
-        "    padding: 0;"
-        "}");
-
-    QVBoxLayout *mainLayout = qobject_cast<QVBoxLayout*>(ui->widget_4->layout());
-    if (mainLayout) {
-        mainLayout->addWidget(titleLabel);
-    }
-}
-
-void Home::setupWidget4QuickActions()
-{
-    QHBoxLayout *actionsLayout = new QHBoxLayout();
-    actionsLayout->setContentsMargins(0, 0, 0, 0);
-    actionsLayout->setSpacing(20);  // 左右两部分之间的间距
-
-    // 创建左侧快速操作项
-    QWidget *leftAction = createQuickActionItem(
-        "Device List",
-        "View registered devices",
-        ":/qss/icon/logo_04.png"  // 替换为实际图标路径
-    );
-
-    // 创建右侧快速操作项
-    QWidget *rightAction = createQuickActionItem(
-        "System Settings",
-        "Configure parameters",
-        ":/qss/icon/logo_04.png"  // 替换为实际图标路径
-    );
-
-    actionsLayout->addWidget(leftAction);
-    actionsLayout->addWidget(rightAction);
-
-    QVBoxLayout *mainLayout = qobject_cast<QVBoxLayout*>(ui->widget_4->layout());
-    if (mainLayout) {
-        mainLayout->addLayout(actionsLayout);
-        //mainLayout->addStretch(1);
-    }
-}
-
-QWidget* Home::createQuickActionItem(const QString &title, const QString &description, const QString &iconPath)
-{
-    // 创建可点击的容器
-    QWidget *actionItem = new QWidget();
-    actionItem->setCursor(Qt::PointingHandCursor);
-    actionItem->setFixedSize(415, 150);
-
-    // 设置样式表
-    actionItem->setStyleSheet(
-        "QWidget {"
-        "    background-color: #ffffff;"
-        "    border: 1px solid #f0f0f0;"
-        "    border-radius: 12px;"
-        "    padding: 20px;"
+        "    font-weight: 500;"
+        "    background: transparent;"
         "}"
-        "QWidget:hover {"
-        "    background-color: #f8f9fa;"
-        "    border-color: #e0e0e0;"
-        "}");
+    );
 
-    // 创建垂直布局
-    QVBoxLayout *itemLayout = new QVBoxLayout(actionItem);
-    itemLayout->setContentsMargins(25, 20, 0, 0);
-    itemLayout->setSpacing(10);
-    itemLayout->setAlignment(Qt::AlignTop);
+    statusLayout->addWidget(indicator);
+    statusLayout->addWidget(status);
+    statusLayout->addStretch();
 
-    // 创建图标 - 修复样式问题
-    QLabel *iconLabel = new QLabel();
+    layout->addWidget(label);
+    layout->addWidget(statusWidget);
 
-    // 设置图标标签样式 - 透明背景，无边框
-    iconLabel->setStyleSheet(
+    return item;
+}
+
+QWidget* Home::createQuickActionsCard()
+{
+    QWidget *card = new QWidget();
+    card->setStyleSheet(
+        "QWidget {"
+        "    background: rgba(255, 255, 255, 0.7);"
+        "    border: 1px solid rgba(0, 0, 0, 0.05);"
+        "    border-radius: 20px;"
+        "}"
+    );
+
+    // 添加阴影
+    QGraphicsDropShadowEffect *shadow = new QGraphicsDropShadowEffect();
+    shadow->setBlurRadius(60);
+    shadow->setColor(QColor(0, 0, 0, 15));
+    shadow->setOffset(0, 30);
+    card->setGraphicsEffect(shadow);
+
+    QVBoxLayout *layout = new QVBoxLayout(card);
+    layout->setContentsMargins(24, 24, 24, 24);  // p-6 = 24px
+    layout->setSpacing(16);
+
+    // 标题
+    QLabel *title = new QLabel("快速操作");
+    title->setStyleSheet(
         "QLabel {"
-        "    background-color: transparent;"
-        "    border: none;"
-        "    margin: 0;"
-        "    padding: 0;"
-        "}");
+        "    color: #1e293b;"
+        "    font-size: 18px;"          // text-lg
+        "    font-weight: 600;"         // font-semibold
+        "    background: transparent;"
+        "}"
+    );
+    layout->addWidget(title);
 
-    // 尝试加载图标
-    QPixmap iconPixmap(iconPath);
+    // 操作按钮网格
+    QHBoxLayout *buttonsLayout = new QHBoxLayout();
+    buttonsLayout->setSpacing(16);  // gap-4 = 16px
 
-    iconLabel->setPixmap(iconPixmap.scaled(23, 23, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    buttonsLayout->addWidget(createActionButton("设备管理", "查看已注册设备", "🖥️"));
+    buttonsLayout->addWidget(createActionButton("系统设置", "配置参数", "⚙️"));
 
+    layout->addLayout(buttonsLayout);
 
-    iconLabel->setAlignment(Qt::AlignLeft);
+    return card;
+}
 
-    // 创建标题标签
+QWidget* Home::createActionButton(const QString &title, const QString &description, const QString &icon)
+{
+    QPushButton *button = new QPushButton();
+    button->setCursor(Qt::PointingHandCursor);
+    button->setFixedHeight(120);
+    button->setStyleSheet(
+        "QPushButton {"
+        "    background: rgba(255, 255, 255, 0.6);"
+        "    border: 1px solid rgba(0, 0, 0, 0.05);"
+        "    border-radius: 14px;"
+        "    text-align: left;"
+        "    padding: 16px;"
+        "}"
+        "QPushButton:hover {"
+        "    background: rgba(0, 0, 0, 0.03);"
+        "}"
+    );
+
+    // 创建按钮内容
+    QVBoxLayout *layout = new QVBoxLayout(button);
+    layout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    layout->setSpacing(8);
+
+    QLabel *iconLabel = new QLabel(icon);
+    iconLabel->setStyleSheet("background: transparent; color: #0A84FF; font-size: 24px;");
+
     QLabel *titleLabel = new QLabel(title);
     titleLabel->setStyleSheet(
         "QLabel {"
-        "    color: #000000;"
+        "    color: #1e293b;"
         "    font-size: 16px;"
-        "    font-weight: bold;"
-        "    font-family: 'Segoe UI', Arial, sans-serif;"
-        "    background-color: transparent;"
-        "    border: none;"
-        "    margin: 0;"
-        "    padding: 0;"
-        "}");
-    titleLabel->setAlignment(Qt::AlignLeft);
+        "    font-weight: 500;"
+        "    background: transparent;"
+        "}"
+    );
 
-    // 创建描述标签
     QLabel *descLabel = new QLabel(description);
     descLabel->setStyleSheet(
         "QLabel {"
-        "    color: #666666;"
+        "    color: #64748b;"
         "    font-size: 14px;"
-        "    font-family: 'Segoe UI', Arial, sans-serif;"
-        "    background-color: transparent;"
-        "    border: none;"
-        "    margin: 0;"
-        "    padding: 0;"
-        "}");
-    descLabel->setAlignment(Qt::AlignLeft);
-    descLabel->setWordWrap(true);
+        "    background: transparent;"
+        "}"
+    );
 
-    // 添加到布局
-    itemLayout->addWidget(iconLabel);
-    itemLayout->addSpacing(20);
-    itemLayout->addWidget(titleLabel);
-    itemLayout->addWidget(descLabel);
-    itemLayout->addStretch(1);
+    layout->addWidget(iconLabel);
+    layout->addWidget(titleLabel);
+    layout->addWidget(descLabel);
+    layout->addStretch();
 
-    return actionItem;
+    return button;
 }
