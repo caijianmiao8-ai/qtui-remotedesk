@@ -2,6 +2,7 @@
 #define HOME_H
 
 #include <QWidget>
+#include <QString>
 
 namespace Ui {
 class Home;
@@ -18,18 +19,19 @@ public:
 private:
     Ui::Home *ui;
 
-    // 主要布局函数
-    void buildCompleteLayout();
+    // 主布局函数
+    void buildLayout();
 
-    // 各部分创建函数
-    QWidget* createHeaderSection();
-    QWidget* createTipCard();
-    QWidget* createStatsSection();
+    // 区域创建函数
+    QWidget* createHeader();
+    QWidget* createPairingHintCard();
+    QWidget* createStatsGrid();
+    QWidget* createStatCard();
     QWidget* createMachineInfoCard();
-    QWidget* createInfoItem(const QString &label, const QString &value);
+    QWidget* createInfoItem(const QString &labelText, const QString &valueText, bool mono);
     QWidget* createNetworkStatusItem();
     QWidget* createQuickActionsCard();
-    QWidget* createActionButton(const QString &title, const QString &description, const QString &icon);
+    QWidget* createActionButton(const QString &titleText, const QString &descText, const QString &icon);
 };
 
 #endif // HOME_H
