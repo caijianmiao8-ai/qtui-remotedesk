@@ -36,6 +36,7 @@ private:
     QString getOSVersion();
     QString getQtVersion();
     QString getArchitecture();
+    QString getBuildVersion();
 };
 
 #endif // ABOUT_H

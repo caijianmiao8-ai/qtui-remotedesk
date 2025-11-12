@@ -6,9 +6,6 @@
 #include <QPushButton>
 #include <QGraphicsDropShadowEffect>
 #include <QSysInfo>
-#include <QDesktopServices>
-#include <QUrl>
-#include <QDate>
 
 About::About(QWidget *parent) :
     QWidget(parent),
@@ -36,25 +33,21 @@ void About::buildLayout()
         delete oldLayout;
     }
 
-    // 创建主布局
+    // React: max-w-4xl mx-auto p-8 mt-5
     QVBoxLayout *mainLayout = new QVBoxLayout(ui->widget);
-    mainLayout->setContentsMargins(32, 32, 32, 32);  // p-8 = 32px
+    mainLayout->setContentsMargins(32, 52, 32, 32);  // p-8 + mt-5
     mainLayout->setSpacing(0);
 
-    // 1. 标题区
+    // 1. Logo + 应用名 + 版本号 + 按钮（居中）
     mainLayout->addWidget(createHeader());
-    mainLayout->addSpacing(32);  // mb-8 = 32px
+    mainLayout->addSpacing(32);  // mb-8
 
-    // 2. 应用信息卡片
+    // 2. 更新日志卡片
     mainLayout->addWidget(createAppInfoCard());
-    mainLayout->addSpacing(24);  // mb-6 = 24px
+    mainLayout->addSpacing(24);  // mb-6
 
     // 3. 系统信息卡片
     mainLayout->addWidget(createSystemInfoCard());
-    mainLayout->addSpacing(24);  // mb-6 = 24px
-
-    // 4. 链接卡片
-    mainLayout->addWidget(createLinksCard());
 
     // 添加弹性空间
     mainLayout->addStretch(1);
@@ -62,47 +55,112 @@ void About::buildLayout()
 
 QWidget* About::createHeader()
 {
+    // React: text-center mb-8
     QWidget *header = new QWidget();
     QVBoxLayout *layout = new QVBoxLayout(header);
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(8);  // mb-2 = 8px
+    layout->setSpacing(0);
+    layout->setAlignment(Qt::AlignCenter);
 
-    // 主标题: "About"
-    QLabel *title = new QLabel("About");
-    title->setStyleSheet(
+    // Logo容器 - React: w-24 h-24 mx-auto mb-6
+    QWidget *logoContainer = new QWidget();
+    logoContainer->setFixedSize(96, 96);  // w-24 h-24 = 96x96px
+    logoContainer->setStyleSheet(
+        "background: qlineargradient(x1:0, y1:0, x2:1, y2:1, "
+        "stop:0 #0A84FF, stop:1 #0051C7);"
+        "border-radius: 20px;");
+
+    QGraphicsDropShadowEffect *logoShadow = new QGraphicsDropShadowEffect();
+    logoShadow->setBlurRadius(40);
+    logoShadow->setColor(QColor(10, 132, 255, 38));  // 0.15 * 255
+    logoShadow->setOffset(0, 20);
+    logoContainer->setGraphicsEffect(logoShadow);
+
+    // Logo图标 (使用文本 "RD" 占位)
+    QLabel *logoIcon = new QLabel("RD", logoContainer);
+    logoIcon->setAlignment(Qt::AlignCenter);
+    logoIcon->setGeometry(0, 0, 96, 96);
+    logoIcon->setStyleSheet(
         "QLabel {"
-        "    color: #1e293b;"           // text-slate-900
-        "    font-size: 36px;"           // text-4xl
-        "    font-weight: 600;"          // font-semibold
-        "    font-family: 'Segoe UI', Arial, sans-serif;"
+        "    color: #ffffff;"
+        "    font-size: 48px;"           // size-48
+        "    font-weight: 700;"
         "    background: transparent;"
-        "    border: none;"
-        "    padding: 0;"
-        "    margin: 0;"
         "}");
 
-    // 副标题: "Application information"
-    QLabel *subtitle = new QLabel("Application information");
-    subtitle->setStyleSheet(
+    layout->addWidget(logoContainer, 0, Qt::AlignCenter);
+    layout->addSpacing(24);  // mb-6
+
+    // 应用名 - React: text-4xl font-semibold mb-2
+    QLabel *appName = new QLabel("RemoteDesktop");
+    appName->setAlignment(Qt::AlignCenter);
+    appName->setStyleSheet(
+        "QLabel {"
+        "    color: #1e293b;"
+        "    font-size: 36px;"            // text-4xl
+        "    font-weight: 600;"           // font-semibold
+        "    font-family: 'Segoe UI', Arial, sans-serif;"
+        "    background: transparent;"
+        "}");
+    layout->addWidget(appName);
+    layout->addSpacing(8);  // mb-2
+
+    // 版本号 - React: text-xl mb-4
+    QLabel *version = new QLabel("版本 2.0.1");
+    version->setAlignment(Qt::AlignCenter);
+    version->setStyleSheet(
         "QLabel {"
         "    color: #64748b;"             // text-slate-500
-        "    font-size: 16px;"            // text-base
-        "    font-weight: 400;"           // normal
+        "    font-size: 20px;"            // text-xl
+        "    font-weight: 400;"
         "    font-family: 'Segoe UI', Arial, sans-serif;"
         "    background: transparent;"
+        "}");
+    layout->addWidget(version);
+    layout->addSpacing(16);  // mb-4
+
+    // 检查更新按钮 - React: accentBg + shadow
+    QPushButton *updateBtn = new QPushButton("检查更新");
+    updateBtn->setCursor(Qt::PointingHandCursor);
+    updateBtn->setStyleSheet(
+        "QPushButton {"
+        "    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, "
+        "        stop:0 #0A84FF, stop:1 #0051C7);"
+        "    color: #ffffff;"
         "    border: none;"
-        "    padding: 0;"
-        "    margin: 0;"
+        "    border-radius: 14px;"
+        "    padding: 8px 24px;"          // py-2 px-6
+        "    font-size: 14px;"            // text-[14px]
+        "    font-weight: 500;"           // font-medium
+        "    font-family: 'Segoe UI', Arial, sans-serif;"
+        "}"
+        "QPushButton:hover {"
+        "    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, "
+        "        stop:0 #0A90FF, stop:1 #005DD7);"
+        "}"
+        "QPushButton:pressed {"
+        "    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, "
+        "        stop:0 #0A84FF, stop:1 #0051C7);"
         "}");
 
-    layout->addWidget(title);
-    layout->addWidget(subtitle);
+    QGraphicsDropShadowEffect *btnShadow = new QGraphicsDropShadowEffect();
+    btnShadow->setBlurRadius(40);
+    btnShadow->setColor(QColor(10, 132, 255, 38));
+    btnShadow->setOffset(0, 20);
+    updateBtn->setGraphicsEffect(btnShadow);
+
+    QHBoxLayout *btnLayout = new QHBoxLayout();
+    btnLayout->addStretch(1);
+    btnLayout->addWidget(updateBtn);
+    btnLayout->addStretch(1);
+    layout->addLayout(btnLayout);
 
     return header;
 }
 
 QWidget* About::createAppInfoCard()
 {
+    // React: 更新日志卡片
     QWidget *card = new QWidget();
     card->setStyleSheet(
         "QWidget {"
@@ -111,189 +169,19 @@ QWidget* About::createAppInfoCard()
         "    border-radius: 20px;"
         "}");
 
-    // 添加阴影效果
     QGraphicsDropShadowEffect *shadow = new QGraphicsDropShadowEffect();
     shadow->setBlurRadius(60);
     shadow->setColor(QColor(0, 0, 0, 15));
     shadow->setOffset(0, 30);
     card->setGraphicsEffect(shadow);
 
+    // React: p-6
     QVBoxLayout *layout = new QVBoxLayout(card);
-    layout->setContentsMargins(32, 32, 32, 32);  // p-8 = 32px
-    layout->setSpacing(24);  // space-y-6 = 24px
+    layout->setContentsMargins(24, 24, 24, 24);  // p-6
+    layout->setSpacing(16);  // space-y-4
 
-    // Logo 和应用名称区域
-    QWidget *logoSection = new QWidget();
-    logoSection->setStyleSheet("background: transparent;");
-    QHBoxLayout *logoLayout = new QHBoxLayout(logoSection);
-    logoLayout->setContentsMargins(0, 0, 0, 0);
-    logoLayout->setSpacing(16);  // gap-4 = 16px
-
-    // Logo 容器
-    QWidget *logoContainer = new QWidget();
-    logoContainer->setFixedSize(64, 64);  // w-16 h-16 = 64x64px
-    logoContainer->setStyleSheet(
-        "background: qlineargradient(x1:0, y1:0, x2:1, y2:1, "
-        "stop:0 #0A84FF, stop:1 #0051C7);"
-        "border-radius: 16px;");
-
-    // Logo 文字 (使用 "RD" 作为占位符)
-    QLabel *logoText = new QLabel("RD", logoContainer);
-    logoText->setAlignment(Qt::AlignCenter);
-    logoText->setGeometry(0, 0, 64, 64);
-    logoText->setStyleSheet(
-        "QLabel {"
-        "    color: #ffffff;"
-        "    font-size: 28px;"
-        "    font-weight: 700;"
-        "    background: transparent;"
-        "}");
-
-    // 应用名称和版本
-    QWidget *nameContainer = new QWidget();
-    nameContainer->setStyleSheet("background: transparent;");
-    QVBoxLayout *nameLayout = new QVBoxLayout(nameContainer);
-    nameLayout->setContentsMargins(0, 0, 0, 0);
-    nameLayout->setSpacing(4);  // space-y-1 = 4px
-
-    QLabel *appName = new QLabel("RemoteDesk");
-    appName->setStyleSheet(
-        "QLabel {"
-        "    color: #1e293b;"
-        "    font-size: 24px;"            // text-2xl
-        "    font-weight: 600;"           // font-semibold
-        "    font-family: 'Segoe UI', Arial, sans-serif;"
-        "    background: transparent;"
-        "}");
-
-    QLabel *appVersion = new QLabel("Version " + getAppVersion());
-    appVersion->setStyleSheet(
-        "QLabel {"
-        "    color: #64748b;"
-        "    font-size: 14px;"            // text-sm
-        "    font-weight: 400;"
-        "    font-family: 'Segoe UI', Arial, sans-serif;"
-        "    background: transparent;"
-        "}");
-
-    nameLayout->addWidget(appName);
-    nameLayout->addWidget(appVersion);
-
-    logoLayout->addWidget(logoContainer);
-    logoLayout->addWidget(nameContainer, 1);
-
-    // 描述文本
-    QLabel *description = new QLabel(
-        "A modern remote desktop solution with low latency and high performance. "
-        "Control your devices from anywhere with secure and reliable connections."
-    );
-    description->setWordWrap(true);
-    description->setStyleSheet(
-        "QLabel {"
-        "    color: #64748b;"
-        "    font-size: 14px;"
-        "    line-height: 1.6;"
-        "    font-family: 'Segoe UI', Arial, sans-serif;"
-        "    background: transparent;"
-        "}");
-
-    // 构建日期
-    QLabel *buildDate = new QLabel("Built on " + getBuildDate());
-    buildDate->setStyleSheet(
-        "QLabel {"
-        "    color: #94a3b8;"             // text-slate-400
-        "    font-size: 13px;"            // text-[13px]
-        "    font-family: 'Segoe UI', Arial, sans-serif;"
-        "    background: transparent;"
-        "}");
-
-    layout->addWidget(logoSection);
-    layout->addWidget(description);
-    layout->addWidget(buildDate);
-
-    return card;
-}
-
-QWidget* About::createSystemInfoCard()
-{
-    QWidget *card = new QWidget();
-    card->setStyleSheet(
-        "QWidget {"
-        "    background: rgba(255, 255, 255, 0.7);"
-        "    border: 1px solid rgba(0, 0, 0, 0.05);"
-        "    border-radius: 20px;"
-        "}");
-
-    // 添加阴影效果
-    QGraphicsDropShadowEffect *shadow = new QGraphicsDropShadowEffect();
-    shadow->setBlurRadius(60);
-    shadow->setColor(QColor(0, 0, 0, 15));
-    shadow->setOffset(0, 30);
-    card->setGraphicsEffect(shadow);
-
-    QVBoxLayout *layout = new QVBoxLayout(card);
-    layout->setContentsMargins(32, 32, 32, 32);  // p-8 = 32px
-    layout->setSpacing(24);  // space-y-6 = 24px
-
-    // 标题
-    QLabel *title = new QLabel("System Information");
-    title->setStyleSheet(
-        "QLabel {"
-        "    color: #1e293b;"
-        "    font-size: 20px;"            // text-xl
-        "    font-weight: 600;"           // font-semibold
-        "    font-family: 'Segoe UI', Arial, sans-serif;"
-        "    background: transparent;"
-        "}");
-
-    // 信息网格
-    QWidget *infoGrid = new QWidget();
-    infoGrid->setStyleSheet("background: transparent;");
-    QVBoxLayout *gridLayout = new QVBoxLayout(infoGrid);
-    gridLayout->setContentsMargins(0, 0, 0, 0);
-    gridLayout->setSpacing(16);  // space-y-4 = 16px
-
-    // 添加信息行
-    gridLayout->addWidget(createInfoRow("Operating System", getOSVersion()));
-    gridLayout->addWidget(createInfoRow("Qt Version", getQtVersion()));
-    gridLayout->addWidget(createInfoRow("Architecture", getArchitecture()));
-    gridLayout->addWidget(createInfoRow("Build Type",
-#ifdef QT_DEBUG
-        "Debug"
-#else
-        "Release"
-#endif
-    ));
-
-    layout->addWidget(title);
-    layout->addWidget(infoGrid);
-
-    return card;
-}
-
-QWidget* About::createLinksCard()
-{
-    QWidget *card = new QWidget();
-    card->setStyleSheet(
-        "QWidget {"
-        "    background: rgba(255, 255, 255, 0.7);"
-        "    border: 1px solid rgba(0, 0, 0, 0.05);"
-        "    border-radius: 20px;"
-        "}");
-
-    // 添加阴影效果
-    QGraphicsDropShadowEffect *shadow = new QGraphicsDropShadowEffect();
-    shadow->setBlurRadius(60);
-    shadow->setColor(QColor(0, 0, 0, 15));
-    shadow->setOffset(0, 30);
-    card->setGraphicsEffect(shadow);
-
-    QVBoxLayout *layout = new QVBoxLayout(card);
-    layout->setContentsMargins(24, 24, 24, 24);  // p-6 = 24px
-    layout->setSpacing(16);  // space-y-4 = 16px
-
-    // 标题
-    QLabel *title = new QLabel("Resources");
+    // 标题 - React: text-lg font-semibold mb-4
+    QLabel *title = new QLabel("更新日志");
     title->setStyleSheet(
         "QLabel {"
         "    color: #1e293b;"
@@ -302,36 +190,115 @@ QWidget* About::createLinksCard()
         "    font-family: 'Segoe UI', Arial, sans-serif;"
         "    background: transparent;"
         "}");
-
-    // 链接网格 (2列)
-    QWidget *linksGrid = new QWidget();
-    linksGrid->setStyleSheet("background: transparent;");
-    QGridLayout *gridLayout = new QGridLayout(linksGrid);
-    gridLayout->setContentsMargins(0, 0, 0, 0);
-    gridLayout->setHorizontalSpacing(16);  // gap-4 = 16px
-    gridLayout->setVerticalSpacing(12);    // gap-3 = 12px
-
-    gridLayout->addWidget(createLinkButton("🌐 Website", "https://remotedesk.io"), 0, 0);
-    gridLayout->addWidget(createLinkButton("📖 Documentation", "https://docs.remotedesk.io"), 0, 1);
-    gridLayout->addWidget(createLinkButton("💻 GitHub", "https://github.com/remotedesk"), 1, 0);
-    gridLayout->addWidget(createLinkButton("📄 License", "https://remotedesk.io/license"), 1, 1);
-
     layout->addWidget(title);
-    layout->addWidget(linksGrid);
+
+    // 版本条目
+    QWidget *versionEntry = new QWidget();
+    versionEntry->setStyleSheet("background: transparent;");
+    QVBoxLayout *entryLayout = new QVBoxLayout(versionEntry);
+    entryLayout->setContentsMargins(0, 0, 0, 0);
+    entryLayout->setSpacing(8);  // mt-2
+
+    // 版本号行 - React: font-medium
+    QLabel *versionLabel = new QLabel("v2.0.1 (2024-10-24)");
+    versionLabel->setStyleSheet(
+        "QLabel {"
+        "    color: #1e293b;"
+        "    font-size: 14px;"
+        "    font-weight: 500;"           // font-medium
+        "    font-family: 'Segoe UI', Arial, sans-serif;"
+        "    background: transparent;"
+        "}");
+    entryLayout->addWidget(versionLabel);
+
+    // 更新内容列表 - React: text-sm mt-2 space-y-1 ml-4 list-disc
+    QString changelogText =
+        "• 优化网络连接稳定性 / Improved connection stability\n"
+        "• 修复部分已知问题 / Bug fixes\n"
+        "• 提升画质传输效率 / Better streaming quality";
+
+    QLabel *changelog = new QLabel(changelogText);
+    changelog->setStyleSheet(
+        "QLabel {"
+        "    color: #64748b;"             // text-slate-500
+        "    font-size: 14px;"            // text-sm
+        "    font-weight: 400;"
+        "    font-family: 'Segoe UI', Arial, sans-serif;"
+        "    background: transparent;"
+        "    padding-left: 16px;"         // ml-4
+        "}");
+    changelog->setWordWrap(true);
+    entryLayout->addWidget(changelog);
+
+    layout->addWidget(versionEntry);
+
+    return card;
+}
+
+QWidget* About::createSystemInfoCard()
+{
+    // React: 系统信息卡片
+    QWidget *card = new QWidget();
+    card->setStyleSheet(
+        "QWidget {"
+        "    background: rgba(255, 255, 255, 0.7);"
+        "    border: 1px solid rgba(0, 0, 0, 0.05);"
+        "    border-radius: 20px;"
+        "}");
+
+    QGraphicsDropShadowEffect *shadow = new QGraphicsDropShadowEffect();
+    shadow->setBlurRadius(60);
+    shadow->setColor(QColor(0, 0, 0, 15));
+    shadow->setOffset(0, 30);
+    card->setGraphicsEffect(shadow);
+
+    // React: p-6
+    QVBoxLayout *layout = new QVBoxLayout(card);
+    layout->setContentsMargins(24, 24, 24, 24);  // p-6
+    layout->setSpacing(16);  // space-y-4
+
+    // 标题 - React: text-lg font-semibold mb-4
+    QLabel *title = new QLabel("系统信息");
+    title->setStyleSheet(
+        "QLabel {"
+        "    color: #1e293b;"
+        "    font-size: 18px;"            // text-lg
+        "    font-weight: 600;"           // font-semibold
+        "    font-family: 'Segoe UI', Arial, sans-serif;"
+        "    background: transparent;"
+        "}");
+    layout->addWidget(title);
+
+    // 信息网格 - React: grid grid-cols-2 gap-4 text-sm
+    QWidget *infoGrid = new QWidget();
+    infoGrid->setStyleSheet("background: transparent;");
+    QGridLayout *gridLayout = new QGridLayout(infoGrid);
+    gridLayout->setContentsMargins(0, 0, 0, 0);
+    gridLayout->setHorizontalSpacing(16);  // gap-4
+    gridLayout->setVerticalSpacing(16);
+
+    // 操作系统
+    gridLayout->addWidget(createInfoRow("操作系统", getOSVersion()), 0, 0);
+
+    // 构建版本
+    gridLayout->addWidget(createInfoRow("构建版本", getBuildVersion()), 0, 1);
+
+    layout->addWidget(infoGrid);
 
     return card;
 }
 
 QWidget* About::createInfoRow(const QString &label, const QString &value, bool mono)
 {
+    Q_UNUSED(mono);
+
     QWidget *row = new QWidget();
     row->setStyleSheet("background: transparent;");
-
-    QHBoxLayout *layout = new QHBoxLayout(row);
+    QVBoxLayout *layout = new QVBoxLayout(row);
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(16);  // gap-4 = 16px
+    layout->setSpacing(4);
 
-    // 标签
+    // 标签 - React: textSecondary
     QLabel *labelWidget = new QLabel(label);
     labelWidget->setStyleSheet(
         "QLabel {"
@@ -341,61 +308,28 @@ QWidget* About::createInfoRow(const QString &label, const QString &value, bool m
         "    font-family: 'Segoe UI', Arial, sans-serif;"
         "    background: transparent;"
         "}");
-    labelWidget->setMinimumWidth(140);
 
-    // 值
+    // 值 - React: theme.text
     QLabel *valueWidget = new QLabel(value);
-    QString fontFamily = mono ? "'Consolas', 'Monaco', monospace" : "'Segoe UI', Arial, sans-serif";
-    valueWidget->setStyleSheet(QString(
+    valueWidget->setStyleSheet(
         "QLabel {"
         "    color: #1e293b;"              // text-slate-900
         "    font-size: 14px;"             // text-sm
-        "    font-weight: 500;"            // font-medium
-        "    font-family: %1;"
-        "    background: transparent;"
-        "}").arg(fontFamily));
-
-    layout->addWidget(labelWidget);
-    layout->addWidget(valueWidget, 1);
-
-    return row;
-}
-
-QWidget* About::createLinkButton(const QString &text, const QString &url)
-{
-    QPushButton *button = new QPushButton(text);
-    button->setCursor(Qt::PointingHandCursor);
-    button->setStyleSheet(
-        "QPushButton {"
-        "    background: rgba(255, 255, 255, 0.6);"
-        "    border: 1px solid rgba(0, 0, 0, 0.05);"
-        "    border-radius: 14px;"
-        "    padding: 12px 16px;"          // py-3 px-4
-        "    color: #1e293b;"
-        "    font-size: 14px;"
-        "    font-weight: 500;"
+        "    font-weight: 400;"
         "    font-family: 'Segoe UI', Arial, sans-serif;"
-        "    text-align: left;"
-        "}"
-        "QPushButton:hover {"
-        "    background: rgba(0, 0, 0, 0.03);"
-        "}"
-        "QPushButton:pressed {"
-        "    background: rgba(0, 0, 0, 0.05);"
+        "    background: transparent;"
         "}");
 
-    // 连接点击事件打开链接
-    connect(button, &QPushButton::clicked, [url]() {
-        QDesktopServices::openUrl(QUrl(url));
-    });
+    layout->addWidget(labelWidget);
+    layout->addWidget(valueWidget);
 
-    return button;
+    return row;
 }
 
 // 辅助函数实现
 QString About::getAppVersion()
 {
-    return "1.0.0";  // 可以从宏定义或版本文件读取
+    return "2.0.1";
 }
 
 QString About::getBuildDate()
@@ -405,6 +339,7 @@ QString About::getBuildDate()
 
 QString About::getOSVersion()
 {
+    // React: "Windows 11 Pro"
     return QSysInfo::prettyProductName();
 }
 
@@ -416,4 +351,10 @@ QString About::getQtVersion()
 QString About::getArchitecture()
 {
     return QSysInfo::currentCpuArchitecture();
+}
+
+QString About::getBuildVersion()
+{
+    // React: "22000.1219"
+    return "22000.1219";  // 可以替换为实际构建版本
 }
