@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 #include <QToolButton>
+#include <QPushButton>
+#include <QGraphicsDropShadowEffect>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -26,24 +28,45 @@ private slots:
     void onDarkModeButtonClicked();
     void onSignOutButtonClicked();
 
+    void onMinimizeClicked();
+    void onMaximizeClicked();
+    void onCloseClicked();
+
 private:
     Ui::MainWindow *ui;
 
     // 存储当前选中的按钮
-    QToolButton* m_currentActiveButton=nullptr;
-    //导航管理部分
+    QToolButton* m_currentActiveButton = nullptr;
+
+    // 主题管理
+    bool m_darkMode = false;
+    QString m_currentLang = "zh";
+
+    // 窗口控制按钮
+    QPushButton* m_minimizeBtn = nullptr;
+    QPushButton* m_maximizeBtn = nullptr;
+    QPushButton* m_closeBtn = nullptr;
+
+    // 初始化函数
+    void setupUI();
+    void setupWindowControls();
     void setupNavigation();
+    void setupBottomButtons();
+    void applyTheme();
+
+    // 导航管理
     void setupButtonWithIcon(QToolButton* button, const QString& text, const QString& iconPath);
     void switchToPage(int pageIndex);
     void setButtonActive(QToolButton* button);
     void setButtonNormal(QToolButton* button);
-    //顶部信息部分
-    void setupSoftwareInfo();
-    void setupSoftwareInfoLayout();
-    //底部管理部分
-    void setupBottomButtons();
-    void setupBottomButtonWithIcon(QToolButton *button, const QString &text, const QString &iconPath);
 
+    // 样式生成
+    QString getLightThemeStyles();
+    QString getDarkThemeStyles();
+    QString getSidebarButtonStyle(bool isActive = false);
+    QString getBottomButtonStyle(bool isSignOut = false);
 
+protected:
+    void paintEvent(QPaintEvent *event) override;
 };
 #endif // MAINWINDOW_H

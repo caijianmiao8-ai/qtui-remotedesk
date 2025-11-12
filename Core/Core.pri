@@ -12,7 +12,8 @@ HEADERS += \
     $$PWD/home.h \
     $$PWD/mainwindow.h \
     $$PWD/settings.h \
-    $$PWD/toggleswitch.h
+    $$PWD/toggleswitch.h \
+    $$PWD/glasscard.h
 
 
 SOURCES += \
@@ -22,6 +23,7 @@ SOURCES += \
     $$PWD/mainwindow.cpp \
     $$PWD/settings.cpp \
     $$PWD/main.cpp \
-    $$PWD/toggleswitch.cpp
+    $$PWD/toggleswitch.cpp \
+    $$PWD/glasscard.cpp
 
 INCLUDEPATH += Core
