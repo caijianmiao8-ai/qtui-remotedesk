@@ -2,6 +2,7 @@
 #define ABOUT_H
 
 #include <QWidget>
+#include <QString>
 
 namespace Ui {
 class About;
@@ -17,7 +18,24 @@ public:
 
 private:
     Ui::About *ui;
-    void initUi();
+
+    // 主布局函数
+    void buildLayout();
+
+    // 区域创建函数
+    QWidget* createHeader();
+    QWidget* createAppInfoCard();
+    QWidget* createSystemInfoCard();
+    QWidget* createLinksCard();
+    QWidget* createInfoRow(const QString &label, const QString &value, bool mono = false);
+    QWidget* createLinkButton(const QString &text, const QString &url);
+
+    // 辅助函数
+    QString getAppVersion();
+    QString getBuildDate();
+    QString getOSVersion();
+    QString getQtVersion();
+    QString getArchitecture();
 };
 
 #endif // ABOUT_H

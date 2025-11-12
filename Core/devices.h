@@ -2,14 +2,15 @@
 #define DEVICES_H
 
 #include <QWidget>
-#include <QGraphicsDropShadowEffect>  // 添加这行
-#include <QLabel>                     // 确保包含 QLabel
-#include <QHBoxLayout>                // 确保包含布局头文件
-#include <QVBoxLayout>
+#include <QString>
+#include <QPushButton>
+#include <QLabel>
 
 namespace Ui {
 class Devices;
 }
+
+struct DeviceInfo;
 
 class Devices : public QWidget
 {
@@ -22,18 +23,24 @@ public:
 private:
     Ui::Devices *ui;
 
-    void initUi();
+    // 主布局函数
+    void buildLayout();
 
-    void setupHomeLayout();
+    // 区域创建函数
+    QWidget* createHeaderSection();
+    QPushButton* createToolButton(const QString &text);
+    QWidget* createPairingHintCard();
+    QWidget* createControllersSection();
+    QWidget* createRegisteredDevicesSection();
 
-    void setupHomeHeader();
+    // 卡片创建函数
+    QWidget* createControllerCard(const DeviceInfo &device);
+    QWidget* createDeviceCard(const DeviceInfo &device);
 
-    void setupWidget2();
-    void setupIconLabel();
-    void setupTipLabel();
-
-    void setupWidget3();
-
+    // 辅助函数
+    QLabel* createStatusBadge(bool online);
+    QWidget* createInfoRow(const QString &label, const QString &value, const QString &valueColor = "");
+    QString getNetworkColor(const QString &network);
 };
 
 #endif // DEVICES_H
