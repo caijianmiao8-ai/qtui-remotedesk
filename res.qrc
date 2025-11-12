@@ -1,0 +1,24 @@
+<RCC>
+    <qresource prefix="/qss">
+        <file>icon/dalong_logo.png</file>
+        <file>icon/icon_colse_none.png</file>
+        <file>icon/icon_deng_guanbi.png</file>
+        <file>icon/icon_deng_she.png</file>
+        <file>icon/icon_deng_suo.png</file>
+        <file>icon/li_icon.png</file>
+        <file>icon/loading.gif</file>
+        <file>icon/logo.png</file>
+        <file>icon/logo_01.png</file>
+        <file>icon/logo_02.png</file>
+        <file>icon/logo_03.png</file>
+        <file>icon/logo_04.png</file>
+        <file>icon/logo_05.png</file>
+        <file>icon/logo_06.png</file>
+        <file>icon/logo_07.png</file>
+        <file>icon/logo_xiao.png</file>
+        <file>icon/shouji_li.png</file>
+        <file>icon/shouji_zai.png</file>
+        <file>icon/weijiance_img.png</file>
+        <file>icon/zai_icon.png</file>
+    </qresource>
+</RCC>
