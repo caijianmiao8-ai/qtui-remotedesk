@@ -3,9 +3,11 @@
 #include <QMouseEvent>
 
 ToggleSwitch::ToggleSwitch(QWidget *parent)
-    : QWidget(parent), m_checked(false), m_sliderPosition(0)
+    : QWidget(parent), m_checked(false), m_sliderPosition(0), m_hovered(false)
 {
     setFixedSize(44, 24);  // React: w-11 h-6 = 44x24px
+    setCursor(Qt::PointingHandCursor);  // Apple风格：手型光标
+    setMouseTracking(true);  // 启用鼠标追踪以检测hover
 
     // React: transition duration 200ms
     m_animation = new QPropertyAnimation(this, "sliderPosition");
@@ -65,11 +67,20 @@ void ToggleSwitch::paintEvent(QPaintEvent *event)
     // React背景颜色：
     // 开启: bg-[rgba(10,132,255,0.6)]
     // 关闭: bg-slate-500/30 = rgba(100,116,139,0.3)
+    // Hover时背景色轻微加深
     QColor backgroundColor;
     if (m_checked) {
-        backgroundColor = QColor(10, 132, 255, 153);  // 0.6 * 255 = 153
+        if (m_hovered) {
+            backgroundColor = QColor(10, 132, 255, 178);  // hover: 0.7 * 255 = 178
+        } else {
+            backgroundColor = QColor(10, 132, 255, 153);  // 0.6 * 255 = 153
+        }
     } else {
-        backgroundColor = QColor(100, 116, 139, 77);  // 0.3 * 255 = 77
+        if (m_hovered) {
+            backgroundColor = QColor(100, 116, 139, 102);  // hover: 0.4 * 255 = 102
+        } else {
+            backgroundColor = QColor(100, 116, 139, 77);   // 0.3 * 255 = 77
+        }
     }
 
     // 绘制背景椭圆 - React: rounded-full
@@ -118,4 +129,18 @@ void ToggleSwitch::mousePressEvent(QMouseEvent *event)
     } else {
         QWidget::mousePressEvent(event);
     }
+}
+
+void ToggleSwitch::enterEvent(QEvent *event)
+{
+    Q_UNUSED(event);
+    m_hovered = true;
+    update();
+}
+
+void ToggleSwitch::leaveEvent(QEvent *event)
+{
+    Q_UNUSED(event);
+    m_hovered = false;
+    update();
 }

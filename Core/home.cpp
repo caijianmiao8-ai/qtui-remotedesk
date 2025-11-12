@@ -9,10 +9,13 @@
 #include <QWidget>
 #include <QGraphicsDropShadowEffect>
 #include <QFrame>
+#include <QPropertyAnimation>
+#include <QGraphicsOpacityEffect>
 
 Home::Home(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::Home)
+    ui(new Ui::Home),
+    m_networkIndicator(nullptr)
 {
     ui->setupUi(this);
     setStyleSheet("background: transparent;");
@@ -122,6 +125,8 @@ QWidget* Home::createHeader()
         "    color: #1e293b;"
         "    font-size: 36px;"
         "    font-weight: 600;"
+        "    line-height: 1.2;"
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}"
     );
@@ -132,6 +137,8 @@ QWidget* Home::createHeader()
         "QLabel {"
         "    color: #64748b;"
         "    font-size: 16px;"
+        "    line-height: 1.5;"
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}"
     );
@@ -261,6 +268,8 @@ QWidget* Home::createStatCard()
         "QLabel {"
         "    color: #64748b;"
         "    font-size: 14px;"
+        "    line-height: 1.4;"
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}"
     );
@@ -275,6 +284,8 @@ QWidget* Home::createStatCard()
         "    color: #fb923c;"
         "    font-size: 30px;"
         "    font-weight: 600;"
+        "    line-height: 1.2;"
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}"
     );
@@ -314,6 +325,8 @@ QWidget* Home::createMachineInfoCard()
         "    color: #1e293b;"
         "    font-size: 24px;"
         "    font-weight: 600;"
+        "    line-height: 1.3;"
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}"
     );
@@ -356,18 +369,21 @@ QWidget* Home::createInfoItem(const QString &labelText, const QString &valueText
         "QLabel {"
         "    color: #64748b;"
         "    font-size: 14px;"
+        "    line-height: 1.4;"
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}"
     );
 
     // 数值: text-lg = 18px, font-medium = 500
     QLabel *value = new QLabel(valueText);
-    QString fontFamily = mono ? "font-family: 'Courier New', monospace;" : "";
+    QString fontFamily = mono ? "font-family: 'Courier New', monospace;" : "font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;";
     value->setStyleSheet(
         QString("QLabel {"
         "    color: #1e293b;"
         "    font-size: 18px;"
         "    font-weight: 500;"
+        "    line-height: 1.4;"
         "    %1"
         "    background: transparent;"
         "}").arg(fontFamily)
@@ -395,6 +411,8 @@ QWidget* Home::createNetworkStatusItem()
         "QLabel {"
         "    color: #64748b;"
         "    font-size: 14px;"
+        "    line-height: 1.4;"
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}"
     );
@@ -408,14 +426,27 @@ QWidget* Home::createNetworkStatusItem()
     statusLayout->setSpacing(8);  // gap-2 = 8px
 
     // 指示点: w-2.5 h-2.5 = 10x10px, bg-green-400 = #4ade80, rounded-full, animate-pulse
-    QWidget *indicator = new QWidget();
-    indicator->setFixedSize(10, 10);
-    indicator->setStyleSheet(
+    m_networkIndicator = new QWidget();
+    m_networkIndicator->setFixedSize(10, 10);
+    m_networkIndicator->setStyleSheet(
         "QWidget {"
         "    background: #4ade80;"
         "    border-radius: 5px;"
         "}"
     );
+
+    // Apple风格pulse动画：opacity 1.0 ↔ 0.3
+    QGraphicsOpacityEffect *opacityEffect = new QGraphicsOpacityEffect(m_networkIndicator);
+    m_networkIndicator->setGraphicsEffect(opacityEffect);
+
+    QPropertyAnimation *pulseAnimation = new QPropertyAnimation(opacityEffect, "opacity");
+    pulseAnimation->setDuration(1500);  // 1.5秒周期
+    pulseAnimation->setStartValue(1.0);
+    pulseAnimation->setKeyValueAt(0.5, 0.3);  // 中间降到0.3
+    pulseAnimation->setEndValue(1.0);
+    pulseAnimation->setEasingCurve(QEasingCurve::InOutSine);  // 平滑呼吸效果
+    pulseAnimation->setLoopCount(-1);  // 无限循环
+    pulseAnimation->start();
 
     // 状态文本: text-lg = 18px, font-medium = 500, text-green-400 = #4ade80
     QLabel *status = new QLabel("局域网在线");
@@ -424,11 +455,13 @@ QWidget* Home::createNetworkStatusItem()
         "    color: #4ade80;"
         "    font-size: 18px;"
         "    font-weight: 500;"
+        "    line-height: 1.4;"
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}"
     );
 
-    statusLayout->addWidget(indicator);
+    statusLayout->addWidget(m_networkIndicator);
     statusLayout->addWidget(status);
     statusLayout->addStretch();
 
@@ -467,6 +500,8 @@ QWidget* Home::createQuickActionsCard()
         "    color: #1e293b;"
         "    font-size: 18px;"
         "    font-weight: 600;"
+        "    line-height: 1.4;"
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}"
     );
@@ -531,6 +566,8 @@ QWidget* Home::createActionButton(const QString &titleText, const QString &descT
         "    color: #1e293b;"
         "    font-size: 14px;"
         "    font-weight: 500;"
+        "    line-height: 1.4;"
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}"
     );
@@ -541,6 +578,8 @@ QWidget* Home::createActionButton(const QString &titleText, const QString &descT
         "QLabel {"
         "    color: #64748b;"
         "    font-size: 14px;"
+        "    line-height: 1.5;"
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}"
     );

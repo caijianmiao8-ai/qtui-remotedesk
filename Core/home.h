@@ -18,6 +18,7 @@ public:
 
 private:
     Ui::Home *ui;
+    QWidget* m_networkIndicator;  // 网络状态指示点（用于pulse动画）
 
     // 主布局函数
     void buildLayout();

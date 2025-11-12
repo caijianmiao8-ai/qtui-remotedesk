@@ -46,6 +46,7 @@ private:
     QPushButton* m_minimizeBtn = nullptr;
     QPushButton* m_maximizeBtn = nullptr;
     QPushButton* m_closeBtn = nullptr;
+    QWidget* m_controlsWidget = nullptr;  // 控制按钮容器
 
     // 初始化函数
     void setupUI();
@@ -68,5 +69,6 @@ private:
 
 protected:
     void paintEvent(QPaintEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
 };
 #endif // MAINWINDOW_H

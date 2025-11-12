@@ -91,6 +91,8 @@ void MainWindow::setupUI()
         "    color: #1e293b;"
         "    font-size: 16px;"
         "    font-weight: 600;"
+        "    line-height: 1.4;"
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}"
     );
@@ -100,6 +102,8 @@ void MainWindow::setupUI()
         "QLabel {"
         "    color: #64748b;"
         "    font-size: 11px;"
+        "    line-height: 1.4;"
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}"
     );
@@ -108,30 +112,30 @@ void MainWindow::setupUI()
 void MainWindow::setupWindowControls()
 {
     // 创建窗口控制按钮容器
-    QWidget* controlsWidget = new QWidget(ui->stackedWidget);
-    controlsWidget->setFixedSize(120, 40);
-    controlsWidget->move(ui->stackedWidget->width() - 140, 20);
-    controlsWidget->setStyleSheet("background: transparent;");
-    controlsWidget->raise();
+    m_controlsWidget = new QWidget(ui->stackedWidget);
+    m_controlsWidget->setFixedSize(120, 40);
+    m_controlsWidget->move(ui->stackedWidget->width() - 140, 20);
+    m_controlsWidget->setStyleSheet("background: transparent;");
+    m_controlsWidget->raise();
 
-    QHBoxLayout* controlsLayout = new QHBoxLayout(controlsWidget);
+    QHBoxLayout* controlsLayout = new QHBoxLayout(m_controlsWidget);
     controlsLayout->setContentsMargins(0, 0, 0, 0);
     controlsLayout->setSpacing(8);
 
     // 最小化按钮
-    m_minimizeBtn = new QPushButton("−", controlsWidget);
+    m_minimizeBtn = new QPushButton("−", m_controlsWidget);
     m_minimizeBtn->setFixedSize(32, 32);
     m_minimizeBtn->setCursor(Qt::PointingHandCursor);
     connect(m_minimizeBtn, &QPushButton::clicked, this, &MainWindow::onMinimizeClicked);
 
     // 最大化按钮
-    m_maximizeBtn = new QPushButton("□", controlsWidget);
+    m_maximizeBtn = new QPushButton("□", m_controlsWidget);
     m_maximizeBtn->setFixedSize(32, 32);
     m_maximizeBtn->setCursor(Qt::PointingHandCursor);
     connect(m_maximizeBtn, &QPushButton::clicked, this, &MainWindow::onMaximizeClicked);
 
     // 关闭按钮
-    m_closeBtn = new QPushButton("✕", controlsWidget);
+    m_closeBtn = new QPushButton("✕", m_controlsWidget);
     m_closeBtn->setFixedSize(32, 32);
     m_closeBtn->setCursor(Qt::PointingHandCursor);
     m_closeBtn->setStyleSheet(
@@ -610,4 +614,14 @@ QString MainWindow::getDarkThemeStyles()
 void MainWindow::setupButtonWithIcon(QToolButton *button, const QString &text, const QString &iconPath)
 {
     // 这个函数保留但不再使用
+}
+
+void MainWindow::resizeEvent(QResizeEvent *event)
+{
+    QMainWindow::resizeEvent(event);
+
+    // 动态调整窗口控制按钮位置
+    if (m_controlsWidget && ui->stackedWidget) {
+        m_controlsWidget->move(ui->stackedWidget->width() - 140, 20);
+    }
 }
