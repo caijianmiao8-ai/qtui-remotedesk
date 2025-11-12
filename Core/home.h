@@ -2,10 +2,10 @@
 #define HOME_H
 
 #include <QWidget>
-#include <QGraphicsDropShadowEffect>  // 添加这行
-#include <QLabel>                     // 确保包含 QLabel
-#include <QHBoxLayout>                // 确保包含布局头文件
-#include <QVBoxLayout>
+#include <QFrame>
+#include <QLabel>
+#include <QGraphicsDropShadowEffect>
+#include <QColor>
 
 namespace Ui {
 class Home;
@@ -23,30 +23,19 @@ private:
     Ui::Home *ui;
 
     void initUi();
+    void setupScrollArea();
 
-    void setupHomeLayout();
+    QWidget *createHeaderSection();
+    QFrame *createPairingHintCard();
+    QWidget *createStatsRow();
+    QFrame *createMachineInfoCard();
+    QFrame *createQuickActionsCard();
 
-    void setupHomeHeader();
-
-    void setupWidget2();
-    void setupIconLabel();
-    void setupTipLabel();
-
-    void setupWidget3();
-    void setupWidget3Layout();
-    void setupWidget3Title();
-    void setupWidget3InfoGrid();
-    void setupInfoItem(QGridLayout *gridLayout, int row, int col,
-                             QLabel *titleLabel, QLabel *valueLabel,
-                             const QString &title, const QString &value, int verticalSpacing);
-    void setupNetworkStatusItem(QGridLayout *gridLayout, int row, int col, QLabel *titleLabel, int verticalSpacing);
-
-    void setupWidget4();
-    void setupWidget4Layout();
-    void setupWidget4Title();
-    void setupWidget4QuickActions();
-    QWidget* createQuickActionItem(const QString &title, const QString &description, const QString &iconPath);
-
+    QFrame *createGlassCard(const QString &objectName) const;
+    QGraphicsDropShadowEffect *createShadow(QObject *parent, qreal blur = 48.0, qreal yOffset = 18.0) const;
+    QLabel *createTitleLabel(const QString &text, int size, bool bold = true) const;
+    QLabel *createSecondaryLabel(const QString &text, int size = 14, qreal opacity = 0.65) const;
+    QWidget *createStatusBadge(const QString &text, const QColor &color) const;
 };
 
 #endif // HOME_H

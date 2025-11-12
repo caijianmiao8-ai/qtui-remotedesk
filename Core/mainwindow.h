@@ -3,6 +3,9 @@
 
 #include <QMainWindow>
 #include <QToolButton>
+#include <QColor>
+
+#include "iconhelper.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -25,25 +28,28 @@ private slots:
     void onLanguageButtonClicked();
     void onDarkModeButtonClicked();
     void onSignOutButtonClicked();
+    void onToggleFullscreen();
 
 private:
     Ui::MainWindow *ui;
 
-    // 存储当前选中的按钮
-    QToolButton* m_currentActiveButton=nullptr;
-    //导航管理部分
+    QToolButton *m_currentActiveButton = nullptr;
+    bool m_isDarkMode = false;
+    bool m_useEnglish = false;
+    bool m_isFullscreen = false;
+
+    void initializeFrame();
+    void setupTopBar();
+    void setupBranding();
     void setupNavigation();
-    void setupButtonWithIcon(QToolButton* button, const QString& text, const QString& iconPath);
-    void switchToPage(int pageIndex);
-    void setButtonActive(QToolButton* button);
-    void setButtonNormal(QToolButton* button);
-    //顶部信息部分
-    void setupSoftwareInfo();
-    void setupSoftwareInfoLayout();
-    //底部管理部分
+    void setupSidebarButton(QToolButton *button, const QString &text, IconGlyph glyph);
+    void setButtonActive(QToolButton *button);
+    void setButtonNormal(QToolButton *button);
     void setupBottomButtons();
-    void setupBottomButtonWithIcon(QToolButton *button, const QString &text, const QString &iconPath);
-
-
+    void updateLanguageButton();
+    void updateDarkModeButton();
+    void switchToPage(int pageIndex);
+    void applyShadow(QWidget *target, qreal blurRadius, qreal yOffset, const QColor &color);
 };
+
 #endif // MAINWINDOW_H
