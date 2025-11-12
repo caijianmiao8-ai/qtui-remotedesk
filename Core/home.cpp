@@ -52,7 +52,7 @@ void Home::buildLayout()
         "}"
         "QScrollBar::handle:vertical {"
         "    background: rgba(60, 60, 67, 0.18);"
-        "    border-radius: 2px;"
+        "    border-radius: 999px;"
         "    min-height: 20px;"
         "}"
         "QScrollBar::handle:vertical:hover {"
