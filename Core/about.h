@@ -26,9 +26,7 @@ private:
     QWidget* createHeader();
     QWidget* createAppInfoCard();
     QWidget* createSystemInfoCard();
-    QWidget* createLinksCard();
     QWidget* createInfoRow(const QString &label, const QString &value, bool mono = false);
-    QWidget* createLinkButton(const QString &text, const QString &url);
 
     // 辅助函数
     QString getAppVersion();

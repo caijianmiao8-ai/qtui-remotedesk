@@ -35,6 +35,56 @@ void Settings::buildLayout()
         delete oldLayout;
     }
 
+    // React: 添加Cupertino风格滚动条
+    ui->widget->setStyleSheet(
+        "QScrollArea {"
+        "    border: none;"
+        "    background: transparent;"
+        "}"
+        "QScrollBar:vertical {"
+        "    background: transparent;"
+        "    width: 4px;"  // React: width: 4px
+        "    margin: 0px;"
+        "}"
+        "QScrollBar::handle:vertical {"
+        "    background: rgba(60, 60, 67, 0.18);"  // React: cupertino-scroll--light
+        "    border-radius: 999px;"               // React: border-radius: 999px
+        "    min-height: 20px;"
+        "}"
+        "QScrollBar::handle:vertical:hover {"
+        "    background: rgba(60, 60, 67, 0.36);"  // React: hover效果
+        "}"
+        "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {"
+        "    border: none;"
+        "    background: none;"
+        "    height: 0px;"
+        "}"
+        "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {"
+        "    background: transparent;"
+        "}"
+        "QScrollBar:horizontal {"
+        "    background: transparent;"
+        "    height: 4px;"  // React: height: 4px
+        "    margin: 0px;"
+        "}"
+        "QScrollBar::handle:horizontal {"
+        "    background: rgba(60, 60, 67, 0.18);"
+        "    border-radius: 999px;"
+        "    min-width: 20px;"
+        "}"
+        "QScrollBar::handle:horizontal:hover {"
+        "    background: rgba(60, 60, 67, 0.36);"
+        "}"
+        "QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {"
+        "    border: none;"
+        "    background: none;"
+        "    width: 0px;"
+        "}"
+        "QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {"
+        "    background: transparent;"
+        "}"
+    );
+
     // 创建主布局 - 严格按照React代码
     QVBoxLayout *mainLayout = new QVBoxLayout(ui->widget);
     mainLayout->setContentsMargins(32, 32, 32, 32);  // p-8 = 32px
