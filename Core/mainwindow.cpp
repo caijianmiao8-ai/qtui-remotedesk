@@ -40,23 +40,32 @@ void MainWindow::setupUI()
     ui->centralwidget->setStyleSheet("background: transparent;");
     ui->widget->setStyleSheet("background: transparent;");
 
-    // 设置左侧边栏样式
+    // 给整个容器（widget）添加阴影效果
+    QGraphicsDropShadowEffect *containerShadow = new QGraphicsDropShadowEffect(this);
+    containerShadow->setBlurRadius(80);
+    containerShadow->setColor(QColor(0, 0, 0, 20));
+    containerShadow->setOffset(0, 30);
+    ui->widget->setGraphicsEffect(containerShadow);
+
+    // 设置左侧边栏样式 - 使用更强的毛玻璃效果
     ui->leftWidget->setStyleSheet(
         "#leftWidget {"
         "    background: rgba(255, 255, 255, 0.6);"
         "    border-top-left-radius: 24px;"
         "    border-bottom-left-radius: 24px;"
         "    border: 1px solid rgba(0, 0, 0, 0.05);"
+        "    border-right: none;"
         "}"
     );
 
-    // 设置 stackedWidget 样式
+    // 设置 stackedWidget 样式 - 使用更强的毛玻璃效果
     ui->stackedWidget->setStyleSheet(
         "QStackedWidget {"
         "    background: rgba(255, 255, 255, 0.6);"
         "    border-top-right-radius: 24px;"
         "    border-bottom-right-radius: 24px;"
         "    border: 1px solid rgba(0, 0, 0, 0.05);"
+        "    border-left: none;"
         "}"
     );
 
