@@ -87,7 +87,7 @@ void Settings::buildLayout()
 
     // 创建主布局 - 严格按照React代码
     QVBoxLayout *mainLayout = new QVBoxLayout(ui->widget);
-    mainLayout->setContentsMargins(32, 32, 32, 32);  // p-8 = 32px
+    mainLayout->setContentsMargins(32, 20, 32, 32);  // p-8 = 32px, mt-5 = 20px
     mainLayout->setSpacing(0);
 
     // 1. 标题（React: 只有一个大标题，没有副标题！）

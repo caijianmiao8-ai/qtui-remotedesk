@@ -42,8 +42,8 @@ void MainWindow::setupUI()
 
     // 给整个容器（widget）添加阴影效果
     QGraphicsDropShadowEffect *containerShadow = new QGraphicsDropShadowEffect(this);
-    containerShadow->setBlurRadius(80);
-    containerShadow->setColor(QColor(0, 0, 0, 20));
+    containerShadow->setBlurRadius(60);
+    containerShadow->setColor(QColor(0, 0, 0, 15));  // rgba(0,0,0,0.06) = 0.06 * 255 ≈ 15
     containerShadow->setOffset(0, 30);
     ui->widget->setGraphicsEffect(containerShadow);
 
