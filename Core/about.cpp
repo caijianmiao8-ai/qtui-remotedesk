@@ -167,7 +167,8 @@ QWidget* About::createHeader()
         "    color: #1e293b;"
         "    font-size: 36px;"            // text-4xl
         "    font-weight: 600;"           // font-semibold
-        "    font-family: 'Segoe UI', Arial, sans-serif;"
+        "    line-height: 1.2;"
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}");
     layout->addWidget(appName);
@@ -181,7 +182,8 @@ QWidget* About::createHeader()
         "    color: #64748b;"             // text-slate-500
         "    font-size: 20px;"            // text-xl
         "    font-weight: 400;"
-        "    font-family: 'Segoe UI', Arial, sans-serif;"
+        "    line-height: 1.4;"
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}");
     layout->addWidget(version);
@@ -255,7 +257,8 @@ QWidget* About::createAppInfoCard()
         "    color: #1e293b;"
         "    font-size: 18px;"            // text-lg
         "    font-weight: 600;"           // font-semibold
-        "    font-family: 'Segoe UI', Arial, sans-serif;"
+        "    line-height: 1.4;"
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}");
     layout->addWidget(title);
@@ -274,7 +277,8 @@ QWidget* About::createAppInfoCard()
         "    color: #1e293b;"
         "    font-size: 14px;"
         "    font-weight: 500;"           // font-medium
-        "    font-family: 'Segoe UI', Arial, sans-serif;"
+        "    line-height: 1.5;"
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}");
     entryLayout->addWidget(versionLabel);
@@ -291,7 +295,8 @@ QWidget* About::createAppInfoCard()
         "    color: #64748b;"             // text-slate-500
         "    font-size: 14px;"            // text-sm
         "    font-weight: 400;"
-        "    font-family: 'Segoe UI', Arial, sans-serif;"
+        "    line-height: 1.6;"
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "    padding-left: 16px;"         // ml-4
         "}");
@@ -332,7 +337,8 @@ QWidget* About::createSystemInfoCard()
         "    color: #1e293b;"
         "    font-size: 18px;"            // text-lg
         "    font-weight: 600;"           // font-semibold
-        "    font-family: 'Segoe UI', Arial, sans-serif;"
+        "    line-height: 1.4;"
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}");
     layout->addWidget(title);
@@ -373,7 +379,8 @@ QWidget* About::createInfoRow(const QString &label, const QString &value, bool m
         "    color: #64748b;"              // text-slate-500
         "    font-size: 14px;"             // text-sm
         "    font-weight: 400;"
-        "    font-family: 'Segoe UI', Arial, sans-serif;"
+        "    line-height: 1.5;"
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}");
 
@@ -384,7 +391,8 @@ QWidget* About::createInfoRow(const QString &label, const QString &value, bool m
         "    color: #1e293b;"              // text-slate-900
         "    font-size: 14px;"             // text-sm
         "    font-weight: 400;"
-        "    font-family: 'Segoe UI', Arial, sans-serif;"
+        "    line-height: 1.5;"
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}");
 

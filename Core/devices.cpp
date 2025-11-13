@@ -151,6 +151,8 @@ QWidget* Devices::createHeaderSection()
         "    color: #1e293b;"
         "    font-size: 36px;"
         "    font-weight: 600;"
+        "    line-height: 1.2;"  // text-4xl
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}"
     );
@@ -160,6 +162,8 @@ QWidget* Devices::createHeaderSection()
         "QLabel {"
         "    color: #64748b;"
         "    font-size: 14px;"
+        "    line-height: 1.5;"  // text-sm
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}"
     );
@@ -280,6 +284,8 @@ QWidget* Devices::createControllersSection()
         "    color: #1e293b;"
         "    font-size: 20px;"
         "    font-weight: 600;"
+        "    line-height: 1.4;"  // text-xl
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}"
     );
@@ -290,6 +296,8 @@ QWidget* Devices::createControllersSection()
         "QLabel {"
         "    color: #64748b;"
         "    font-size: 14px;"
+        "    line-height: 1.5;"  // text-sm
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}"
     );
@@ -379,6 +387,8 @@ QWidget* Devices::createControllerCard(const DeviceInfo &device)
         "    color: #1e293b;"
         "    font-size: 20px;"
         "    font-weight: 600;"
+        "    line-height: 1.4;"  // text-xl
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}"
     );
@@ -388,6 +398,8 @@ QWidget* Devices::createControllerCard(const DeviceInfo &device)
         "QLabel {"
         "    color: #64748b;"
         "    font-size: 14px;"
+        "    line-height: 1.5;"  // text-sm
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}"
     );
@@ -477,6 +489,8 @@ QWidget* Devices::createRegisteredDevicesSection()
         "    color: #1e293b;"
         "    font-size: 20px;"
         "    font-weight: 600;"
+        "    line-height: 1.4;"  // text-xl
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}"
     );
@@ -486,6 +500,8 @@ QWidget* Devices::createRegisteredDevicesSection()
         "QLabel {"
         "    color: #64748b;"
         "    font-size: 14px;"
+        "    line-height: 1.5;"  // text-sm
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}"
     );
@@ -577,6 +593,8 @@ QWidget* Devices::createDeviceCard(const DeviceInfo &device)
         "    color: #1e293b;"
         "    font-size: 20px;"
         "    font-weight: 600;"
+        "    line-height: 1.4;"  // text-xl
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}"
     );
@@ -586,6 +604,8 @@ QWidget* Devices::createDeviceCard(const DeviceInfo &device)
         "QLabel {"
         "    color: #64748b;"
         "    font-size: 14px;"
+        "    line-height: 1.5;"  // text-sm
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}"
     );
@@ -713,19 +733,24 @@ QWidget* Devices::createInfoRow(const QString &label, const QString &value, cons
         "QLabel {"
         "    color: #64748b;"
         "    font-size: 14px;"
+        "    line-height: 1.5;"  // text-sm
+        "    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;"
         "    background: transparent;"
         "}"
     );
 
     QLabel *valueWidget = new QLabel(value);
     QString color = valueColor.isEmpty() ? "#1e293b" : valueColor;
-    QString fontFamily = (label == "IP地址" || label == "设备ID") ? "font-family: 'Courier New', monospace;" : "";
+    QString fontFamily = (label == "IP地址" || label == "设备ID")
+        ? "font-family: 'Courier New', monospace;"
+        : "font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;";
     QString fontWeight = valueColor.isEmpty() ? "" : "font-weight: 500;";
 
     valueWidget->setStyleSheet(
         QString("QLabel {"
         "    color: %1;"
         "    font-size: 14px;"
+        "    line-height: 1.5;"
         "    %2"
         "    %3"
         "    background: transparent;"
