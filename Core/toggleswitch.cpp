@@ -5,7 +5,7 @@
 ToggleSwitch::ToggleSwitch(QWidget *parent)
     : QWidget(parent), m_checked(false), m_sliderPosition(0)
 {
-    setFixedSize(48, 26);
+    setFixedSize(44, 24);
 
     // 创建动画
     m_animation = new QPropertyAnimation(this, "sliderPosition");
@@ -13,7 +13,7 @@ ToggleSwitch::ToggleSwitch(QWidget *parent)
     m_animation->setEasingCurve(QEasingCurve::OutCubic);
 
     // 初始化滑块位置
-    m_sliderPosition = m_checked ? travelDistance() : 0;
+    m_sliderPosition = m_checked ? 20 : 0;
 }
 
 bool ToggleSwitch::isChecked() const
@@ -29,7 +29,7 @@ void ToggleSwitch::setChecked(bool checked)
         // 启动动画
         m_animation->stop();
         m_animation->setStartValue(m_sliderPosition);
-        m_animation->setEndValue(checked ? travelDistance() : 0);
+        m_animation->setEndValue(checked ? 20 : 0);
         m_animation->start();
 
         update(); // 重绘
@@ -52,15 +52,7 @@ void ToggleSwitch::setSliderPosition(qreal position)
 
 QSize ToggleSwitch::sizeHint() const
 {
-    return QSize(48, 26);
-}
-
-qreal ToggleSwitch::travelDistance() const
-{
-    int gap = 3;
-    int sliderSize = height() - 2 * gap;
-    int travel = width() - sliderSize - 2 * gap;
-    return qMax(0, travel);
+    return QSize(44, 24);
 }
 
 void ToggleSwitch::paintEvent(QPaintEvent *event)
@@ -72,7 +64,7 @@ void ToggleSwitch::paintEvent(QPaintEvent *event)
 
     // 绘制背景椭圆
     QRect backgroundRect(0, 0, width(), height());
-    QColor backgroundColor = m_checked ? QColor(10, 132, 255, 220) : QColor(229, 231, 235);
+    QColor backgroundColor = m_checked ? QColor("#2196F3") : QColor("#e5e5e5");
     painter.setBrush(backgroundColor);
     painter.setPen(Qt::NoPen);
     painter.drawRoundedRect(backgroundRect, 12, 12);
@@ -80,15 +72,14 @@ void ToggleSwitch::paintEvent(QPaintEvent *event)
     // 间隙设置
     int gap = 3;  // 间隙大小，可以调整这个值
     int sliderSize = height() - 2 * gap;  // 滑块大小根据间隙计算
-    qreal travel = travelDistance();
 
     // 计算滑块位置
     int minX = gap;
-    int sliderX = minX;
-    if (travel > 0) {
-        qreal normalizedPosition = m_sliderPosition / travel;
-        sliderX = minX + normalizedPosition * travel;
-    }
+    int maxX = width() - sliderSize - gap;
+
+    // 将0-20的动画位置映射到实际像素位置
+    qreal normalizedPosition = m_sliderPosition / 20.0;
+    int sliderX = minX + normalizedPosition * (maxX - minX);
     int sliderY = gap;
 
     // 绘制滑块
@@ -99,7 +90,9 @@ void ToggleSwitch::paintEvent(QPaintEvent *event)
     gradient.setColorAt(0, QColor(255, 255, 255));
     gradient.setColorAt(1, QColor(245, 245, 245));
     painter.setBrush(gradient);
-    painter.setPen(QPen(QColor(210, 210, 210), 0.6));
+
+    // 添加轻微的边框
+    painter.setPen(QPen(QColor(220, 220, 220), 0.5));
     painter.drawEllipse(sliderRect);
 }
 

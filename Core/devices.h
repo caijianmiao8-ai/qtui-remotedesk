@@ -2,33 +2,14 @@
 #define DEVICES_H
 
 #include <QWidget>
-#include <QFrame>
-#include <QLabel>
-#include <QVector>
-#include <QGraphicsDropShadowEffect>
-#include <QColor>
+#include <QGraphicsDropShadowEffect>  // 添加这行
+#include <QLabel>                     // 确保包含 QLabel
+#include <QHBoxLayout>                // 确保包含布局头文件
+#include <QVBoxLayout>
 
 namespace Ui {
 class Devices;
 }
-
-struct ControllerInfo {
-    QString name;
-    QString os;
-    bool online;
-    QString lastActive;
-    QString battery;
-};
-
-struct DeviceInfo {
-    QString name;
-    QString os;
-    QString ip;
-    QString lastSeen;
-    QString networkMode;
-    QString latency;
-    bool online;
-};
 
 class Devices : public QWidget
 {
@@ -42,20 +23,21 @@ private:
     Ui::Devices *ui;
 
     void initUi();
-    void setupScrollArea();
 
-    QWidget *createHeaderSection();
-    QFrame *createPairingHintCard();
-    QWidget *createControllersSection();
-    QWidget *createRegisteredDevicesSection();
+    void setupHomeLayout();
 
-    QFrame *createGlassCard(const QString &objectName) const;
-    QGraphicsDropShadowEffect *createShadow(QObject *parent, qreal blur = 44.0, qreal yOffset = 16.0) const;
-    QLabel *createTitleLabel(const QString &text, int size, bool bold = true) const;
-    QLabel *createSecondaryLabel(const QString &text, int size = 14, qreal opacity = 0.62) const;
-    QWidget *createStatusBadge(bool online) const;
-    QFrame *buildControllerCard(const ControllerInfo &info) const;
-    QFrame *buildDeviceCard(const DeviceInfo &info) const;
+    void setupHomeHeader();
+
+    void setupWidget2();
+    void setupIconLabel();
+    void setupTipLabel();
+
+    void setupWidget3();
+
+    // 新增方法
+    void setupDeviceCards();
+    QWidget* createDeviceCard(const QString& deviceName, const QString& iconPath = ":/qss/icon/logo_04.png");
+
 };
 
 #endif // DEVICES_H

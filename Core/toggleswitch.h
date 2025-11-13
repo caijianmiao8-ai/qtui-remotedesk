@@ -32,7 +32,6 @@ private:
     bool m_checked;
     QPropertyAnimation *m_animation;
     qreal m_sliderPosition;
-    qreal travelDistance() const;
 };
 
 #endif // TOGGLESWITCH_H

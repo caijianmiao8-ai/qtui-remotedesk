@@ -1,23 +1,15 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <QGraphicsDropShadowEffect>
-#include <QApplication>
-#include <QLabel>
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
-    initializeFrame();
-    setupTopBar();
-    setupBranding();
+    setupSoftwareInfo();
     setupNavigation();
     setupBottomButtons();
 
-    onHomeButtonClicked();
 }
 
 MainWindow::~MainWindow()
@@ -25,107 +17,57 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::initializeFrame()
-{
-    setAttribute(Qt::WA_TranslucentBackground);
-    ui->centralwidget->setAttribute(Qt::WA_StyledBackground, true);
-    ui->shellFrame->setAttribute(Qt::WA_StyledBackground, true);
-    ui->leftWidget->setAttribute(Qt::WA_StyledBackground, true);
-
-    applyShadow(ui->shellFrame, 60.0, 28.0, QColor(15, 23, 42, 32));
-    applyShadow(ui->leftWidget, 44.0, 18.0, QColor(15, 23, 42, 20));
-}
-
-void MainWindow::setupTopBar()
-{
-    auto baseStyle = QStringLiteral(
-        "QToolButton {"
-        "    background-color: transparent;"
-        "    color: rgba(15,23,42,0.65);"
-        "    font-size: 14px;"
-        "    min-width: 34px;"
-        "    min-height: 34px;"
-        "    border-radius: 12px;"
-        "}" 
-        "QToolButton:hover {"
-        "    background-color: rgba(15,23,42,0.08);"
-        "}" 
-        "QToolButton:pressed {"
-        "    background-color: rgba(15,23,42,0.14);"
-        "}");
-
-    ui->minimizeButton->setStyleSheet(baseStyle);
-    ui->fullscreenButton->setStyleSheet(baseStyle);
-
-    ui->closeButton->setStyleSheet(
-        "QToolButton {"
-        "    background-color: transparent;"
-        "    color: rgba(239,68,68,0.92);"
-        "    font-size: 14px;"
-        "    min-width: 34px;"
-        "    min-height: 34px;"
-        "    border-radius: 12px;"
-        "}" 
-        "QToolButton:hover {"
-        "    background-color: rgba(239,68,68,0.12);"
-        "}" 
-        "QToolButton:pressed {"
-        "    background-color: rgba(239,68,68,0.18);"
-        "}");
-
-    connect(ui->minimizeButton, &QToolButton::clicked, this, &MainWindow::showMinimized);
-    connect(ui->fullscreenButton, &QToolButton::clicked, this, &MainWindow::onToggleFullscreen);
-    connect(ui->closeButton, &QToolButton::clicked, this, &MainWindow::close);
-}
-
-void MainWindow::setupBranding()
-{
-    ui->label_appName->setStyleSheet("QLabel { color: rgba(15,23,42,0.92); font-size: 18px; font-weight: 600; }");
-    ui->label_version->setStyleSheet("QLabel { color: rgba(15,23,42,0.45); font-size: 12px; font-weight: 500; }");
-
-    auto *logoIcon = new QLabel(ui->logoBadge);
-    logoIcon->setAlignment(Qt::AlignCenter);
-    logoIcon->setPixmap(IconHelper::draw(IconGlyph::Monitor, QSize(26, 26), Qt::white));
-    logoIcon->resize(ui->logoBadge->size());
-    logoIcon->setAttribute(Qt::WA_TransparentForMouseEvents);
-}
-
 void MainWindow::setupNavigation()
 {
-    setupSidebarButton(ui->homeBtn, tr("主页"), IconGlyph::Home);
-    setupSidebarButton(ui->deviceBtn, tr("设备管理"), IconGlyph::Grid);
-    setupSidebarButton(ui->settingBtn, tr("设置"), IconGlyph::Settings);
-    setupSidebarButton(ui->aboutBtn, tr("关于"), IconGlyph::Info);
-
+    // 连接信号槽
     connect(ui->homeBtn, &QToolButton::clicked, this, &MainWindow::onHomeButtonClicked);
     connect(ui->deviceBtn, &QToolButton::clicked, this, &MainWindow::onDeviceButtonClicked);
     connect(ui->settingBtn, &QToolButton::clicked, this, &MainWindow::onSettingButtonClicked);
     connect(ui->aboutBtn, &QToolButton::clicked, this, &MainWindow::onAboutButtonClicked);
+
+    // 设置按钮基础样式
+    setupButtonWithIcon(ui->homeBtn, "Home", ":/qss/icon/logo_02.png");
+    setupButtonWithIcon(ui->deviceBtn, "Devices", ":/qss/icon/logo_02.png");
+    setupButtonWithIcon(ui->settingBtn, "Settings", ":/qss/icon/logo_02.png");
+    setupButtonWithIcon(ui->aboutBtn, "About", ":/qss/icon/logo_02.png");
+
+    // 默认选中首页
+    onHomeButtonClicked();
 }
 
-void MainWindow::setupSidebarButton(QToolButton *button, const QString &text, IconGlyph glyph)
+void MainWindow::setupButtonWithIcon(QToolButton *button, const QString &text, const QString &iconPath)
 {
-    button->setText(text);
-    button->setIcon(QIcon(IconHelper::draw(glyph, QSize(22, 22), QColor(15, 23, 42, 220))));
-    button->setIconSize(QSize(22, 22));
+    // 设置图标
+    QIcon icon(iconPath);
+    button->setIcon(icon);
+    button->setIconSize(QSize(16, 16));
+
+    // 关键：在文本前添加空格来强制间距
+    button->setText("  " + text);
+
     button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    button->setCursor(Qt::PointingHandCursor);
     button->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    button->setProperty("glyph", static_cast<int>(glyph));
+    button->setAutoRaise(true);
 
     button->setStyleSheet(
         "QToolButton {"
-        "    background-color: transparent;"
-        "    border: none;"
-        "    color: rgba(15,23,42,0.55);"
-        "    font-size: 15px;"
-        "    font-weight: 600;"
-        "    padding: 12px 16px;"
-        "    border-radius: 16px;"
         "    text-align: left;"
-        "}" 
+        "    padding: 10px 15px;"
+        "    border: none;"                   // 无边框
+        "    background-color: transparent;"
+        "    color: #000000;"                 // 纯黑色字体
+        "    font-size: 14px;"
+        "    font-weight: bold;"              // 所有状态字体加粗
+        "    border-radius: 15px;"
+        "    margin: 1px 0px;"
+        "}"
         "QToolButton:hover {"
-        "    background-color: rgba(15,23,42,0.06);"
+        "    background-color: #f0f0f0;"      // 灰色悬停
+        "    color: #000000;"
+        "}"
+        "QToolButton:pressed {"
+        "    background-color: #f0f0f0;"      // 保持与悬停相同
+        "    color: #000000;"
         "}");
 }
 
@@ -135,129 +77,225 @@ void MainWindow::setButtonActive(QToolButton *button)
         setButtonNormal(m_currentActiveButton);
     }
 
-    bool ok = false;
-    IconGlyph glyph = static_cast<IconGlyph>(button->property("glyph").toInt(&ok));
-    if (ok) {
-        button->setIcon(QIcon(IconHelper::draw(glyph, QSize(22, 22), QColor(10, 132, 255))));
-    }
-
-    button->setStyleSheet(
+    // 结合边框和渐变背景的内嵌效果
+    QString activeStyle =
         "QToolButton {"
-        "    background-color: rgba(10,132,255,0.16);"
-        "    border: 1px solid rgba(10,132,255,0.26);"
-        "    color: #0A84FF;"
-        "    font-size: 15px;"
-        "    font-weight: 700;"
-        "    padding: 12px 16px;"
-        "    border-radius: 16px;"
         "    text-align: left;"
-        "}" 
-        "QToolButton:hover {"
-        "    background-color: rgba(10,132,255,0.2);"
-        "}");
+        "    padding: 10px 15px;"
+        "    border: 1px solid #e0e0e0;"      // 基础边框颜色
+        "    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, "
+        "                               stop:0 #f8f8f8, stop:0.5 #f0f0f0, "
+        "                               stop:1 #e8e8e8);"  // 渐变背景
+        "    color: #000000;"                 // 黑色字体
+        "    font-size: 14px;"
+        "    font-weight: bold;"              // 加粗
+        "    border-radius: 15px;"
+        "    margin: 1px 0px;"
+        "    border-top: 1px  solid #d5d5d5;"
+        "    border-left: 1px solid #d5d5d5;"
+        "    border-right: 1px solid #f5f5f5;"
+        "    border-bottom: 1px solid #f5f5f5;"
+        "}";
 
+    button->setStyleSheet(activeStyle);
     m_currentActiveButton = button;
 }
 
 void MainWindow::setButtonNormal(QToolButton *button)
 {
-    if (!button) {
-        return;
-    }
+    // 正常状态
+    QString normalStyle =
+            "QToolButton {"
+            "    text-align: left;"
+            "    padding: 10px 15px;"
+            "    border: none;"                   // 无边框
+            "    background-color: transparent;"
+            "    color: #000000;"                 // 纯黑色字体
+            "    font-size: 14px;"
+            "    font-weight: bold;"              // 所有状态字体加粗
+            "    border-radius: 15px;"
+            "    margin: 1px 0px;"
+            "}"
+            "QToolButton:hover {"
+            "    background-color: #f0f0f0;"      // 灰色悬停
+            "    color: #000000;"
+            "}"
+            "QToolButton:pressed {"
+            "    background-color: #f0f0f0;"      // 保持与悬停相同
+            "    color: #000000;"
+            "}";
 
-    bool ok = false;
-    IconGlyph glyph = static_cast<IconGlyph>(button->property("glyph").toInt(&ok));
-    if (ok) {
-        button->setIcon(QIcon(IconHelper::draw(glyph, QSize(22, 22), QColor(15, 23, 42, 220))));
-    }
+    button->setStyleSheet(normalStyle);
+}
 
-    button->setStyleSheet(
-        "QToolButton {"
-        "    background-color: transparent;"
-        "    border: none;"
-        "    color: rgba(15,23,42,0.55);"
-        "    font-size: 15px;"
-        "    font-weight: 600;"
-        "    padding: 12px 16px;"
-        "    border-radius: 16px;"
-        "    text-align: left;"
-        "}" 
-        "QToolButton:hover {"
-        "    background-color: rgba(15,23,42,0.06);"
+void MainWindow::setupSoftwareInfo()
+{
+    // 设置 widget_3 的背景颜色
+    ui->widget_3->setStyleSheet(
+        "QWidget#widget_3 {"
+        "    background-color: transparent;"  // 浅灰色背景
         "}");
+
+    // 清除布局（如果存在）
+    if (ui->widget_3->layout()) {
+        QLayout *oldLayout = ui->widget_3->layout();
+        delete oldLayout;
+    }
+
+    // 创建新布局
+    QHBoxLayout *mainLayout = new QHBoxLayout(ui->widget_3);
+    mainLayout->setContentsMargins(15, 10, 15, 10);
+    mainLayout->setSpacing(12);
+
+    // 设置软件图标
+    QPixmap logoPixmap(":/qss/icon/logo_04.png");
+    logoPixmap = logoPixmap.scaled(40, 40, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    ui->label->setPixmap(logoPixmap);
+    ui->label->setScaledContents(true);
+    ui->label->setFixedSize(40, 40);
+    ui->label->setStyleSheet(
+        "QLabel {"
+        "    background-color: transparent;"
+        "}");
+
+    // 设置软件名称
+    ui->label_2->setText("RemoteDesktop");
+    ui->label_2->setStyleSheet(
+        "QLabel {"
+        "    color: #333333;"
+        "    font-size: 16px;"
+        "    font-weight: bold;"
+        "    background-color: transparent;"
+        "    margin: 0px;"
+        "    padding: 0px;"
+        "}");
+    ui->label_2->setAlignment(Qt::AlignLeft | Qt::AlignBottom);  // 底部对齐
+
+    // 设置软件版本
+    ui->label_3->setText("v1.0.0");
+    ui->label_3->setStyleSheet(
+        "QLabel {"
+        "    color: #666666;"
+        "    font-size: 12px;"
+        "    background-color: transparent;"
+        "    margin: 0px;"
+        "    padding: 0px;"
+        "}");
+    ui->label_3->setAlignment(Qt::AlignLeft | Qt::AlignTop);  // 顶部对齐
+
+    // 创建文本布局 - 最小间距
+    QVBoxLayout *textLayout = new QVBoxLayout();
+    textLayout->setContentsMargins(0, 0, 0, 0);
+    textLayout->setSpacing(5);  // 零间距
+
+    textLayout->addWidget(ui->label_2);
+    textLayout->addWidget(ui->label_3);
+
+    // 添加到主布局
+    mainLayout->addWidget(ui->label);
+    mainLayout->addLayout(textLayout);
+
+    // 设置拉伸
+    mainLayout->setStretch(0, 0); // 图标固定
+    mainLayout->setStretch(1, 1); // 文本拉伸
 }
 
 void MainWindow::setupBottomButtons()
 {
+    // 连接信号槽
     connect(ui->languageBtn, &QToolButton::clicked, this, &MainWindow::onLanguageButtonClicked);
     connect(ui->darkModeBtn, &QToolButton::clicked, this, &MainWindow::onDarkModeButtonClicked);
     connect(ui->signOutBtn, &QToolButton::clicked, this, &MainWindow::onSignOutButtonClicked);
 
-    auto controlStyle = QStringLiteral(
-        "QToolButton {"
-        "    background-color: rgba(255,255,255,0.62);"
-        "    border: 1px solid rgba(15,23,42,0.05);"
-        "    border-radius: 16px;"
-        "    color: rgba(15,23,42,0.75);"
-        "    font-size: 14px;"
-        "    font-weight: 600;"
-        "    padding: 12px 16px;"
-        "    text-align: left;"
-        "}" 
-        "QToolButton:hover {"
-        "    background-color: rgba(255,255,255,0.78);"
-        "}");
-
-    ui->languageBtn->setStyleSheet(controlStyle);
-    ui->languageBtn->setCursor(Qt::PointingHandCursor);
-    ui->languageBtn->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    ui->languageBtn->setIconSize(QSize(20, 20));
-
-    ui->darkModeBtn->setStyleSheet(controlStyle);
-    ui->darkModeBtn->setCursor(Qt::PointingHandCursor);
-    ui->darkModeBtn->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    ui->darkModeBtn->setIconSize(QSize(20, 20));
-
-    ui->signOutBtn->setStyleSheet(
-        "QToolButton {"
-        "    background-color: rgba(239,68,68,0.12);"
-        "    border: 1px solid rgba(239,68,68,0.26);"
-        "    border-radius: 16px;"
-        "    color: rgba(239,68,68,0.92);"
-        "    font-size: 14px;"
-        "    font-weight: 600;"
-        "    padding: 12px 16px;"
-        "    text-align: left;"
-        "}" 
-        "QToolButton:hover {"
-        "    background-color: rgba(239,68,68,0.18);"
-        "}");
-    ui->signOutBtn->setCursor(Qt::PointingHandCursor);
-    ui->signOutBtn->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    ui->signOutBtn->setIcon(QIcon(IconHelper::draw(IconGlyph::Logout, QSize(20, 20), QColor(239, 68, 68))));
-    ui->signOutBtn->setIconSize(QSize(20, 20));
-
-    updateLanguageButton();
-    updateDarkModeButton();
+    // 设置按钮样式
+    setupBottomButtonWithIcon(ui->languageBtn, "Language:English", ":/qss/icon/logo_04.png");
+    setupBottomButtonWithIcon(ui->darkModeBtn, "Dark Mode", ":/qss/icon/logo_04.png");
+    setupBottomButtonWithIcon(ui->signOutBtn, "Sign Out", ":/qss/icon/logo_04.png");
 }
 
-void MainWindow::updateLanguageButton()
+void MainWindow::setupBottomButtonWithIcon(QToolButton *button, const QString &text, const QString &iconPath)
 {
-    ui->languageBtn->setIcon(QIcon(IconHelper::draw(IconGlyph::Globe, QSize(20, 20), QColor(10, 132, 255))));
-    ui->languageBtn->setText(m_useEnglish ? tr("语言: English") : tr("语言: 中文"));
-}
+    // 设置图标
+    QIcon icon(iconPath);
+    button->setIcon(icon);
+    button->setIconSize(QSize(16, 16));
 
-void MainWindow::updateDarkModeButton()
-{
-    if (m_isDarkMode) {
-        ui->darkModeBtn->setIcon(QIcon(IconHelper::draw(IconGlyph::Sun, QSize(20, 20), QColor(252, 211, 77))));
-        ui->darkModeBtn->setText(tr("浅色模式"));
+    // 设置文本
+    button->setText("  " + text);
+
+    button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    button->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    button->setAutoRaise(true);
+
+    // 根据按钮对象名判断是否是 Sign Out 按钮
+    bool isSignOutButton = (button->objectName() == "signOutBtn");
+
+    if (isSignOutButton) {
+        // Sign Out 按钮的特殊样式
+        button->setStyleSheet(
+            "QToolButton {"
+            "    text-align: left;"
+            "    padding: 10px 15px;"
+            "    border: none;"
+            "    background-color: transparent;"
+            "    color: #ff4444;"              // 红色字体
+            "    font-size: 14px;"
+            "    font-weight: normal;"
+            "    border-radius: 10px;"
+            "    margin: 1px 0px;"
+            "}"
+            "QToolButton:hover {"
+            "    background-color: #ffeeee;"    // 浅红色背景悬停
+            "    color: #cc0000;"               // 悬停时字体颜色加深
+            "}"
+            "QToolButton:pressed {"
+            "    background-color: #ffdddd;"    // 按下时背景更深
+            "    color: #aa0000;"               // 按下时字体颜色更深
+            "}");
     } else {
-        ui->darkModeBtn->setIcon(QIcon(IconHelper::draw(IconGlyph::Moon, QSize(20, 20), QColor(15, 23, 42))));
-        ui->darkModeBtn->setText(tr("深色模式"));
+        // 普通底部按钮样式
+        button->setStyleSheet(
+            "QToolButton {"
+            "    text-align: left;"
+            "    padding: 10px 15px;"
+            "    border: none;"
+            "    background-color: transparent;"
+            "    color: #666666;"
+            "    font-size: 14px;"
+            "    font-weight: normal;"
+            "    border-radius: 10px;"
+            "    margin: 1px 0px;"
+            "}"
+            "QToolButton:hover {"
+            "    background-color: #f0f0f0;"
+            "    color: #333333;"
+            "}"
+            "QToolButton:pressed {"
+            "    background-color: #e8e8e8;"
+            "}");
     }
 }
 
+// 底部按钮的槽函数实现
+void MainWindow::onLanguageButtonClicked()
+{
+    // 实现语言切换功能
+    // 这里可以添加语言切换对话框或逻辑
+}
+
+void MainWindow::onDarkModeButtonClicked()
+{
+
+}
+
+void MainWindow::onSignOutButtonClicked()
+{
+    // 实现退出登录
+    // 这里可以添加退出登录逻辑
+    QApplication::quit(); // 示例：退出应用
+}
+
+//上方切换页面按钮
 void MainWindow::switchToPage(int pageIndex)
 {
     ui->stackedWidget->setCurrentIndex(pageIndex);
@@ -287,38 +325,3 @@ void MainWindow::onAboutButtonClicked()
     setButtonActive(ui->aboutBtn);
 }
 
-void MainWindow::onLanguageButtonClicked()
-{
-    m_useEnglish = !m_useEnglish;
-    updateLanguageButton();
-}
-
-void MainWindow::onDarkModeButtonClicked()
-{
-    m_isDarkMode = !m_isDarkMode;
-    updateDarkModeButton();
-}
-
-void MainWindow::onSignOutButtonClicked()
-{
-    QApplication::quit();
-}
-
-void MainWindow::onToggleFullscreen()
-{
-    m_isFullscreen = !m_isFullscreen;
-    if (m_isFullscreen) {
-        showFullScreen();
-    } else {
-        showNormal();
-    }
-}
-
-void MainWindow::applyShadow(QWidget *target, qreal blurRadius, qreal yOffset, const QColor &color)
-{
-    auto *effect = new QGraphicsDropShadowEffect(target);
-    effect->setBlurRadius(blurRadius);
-    effect->setOffset(0, yOffset);
-    effect->setColor(color);
-    target->setGraphicsEffect(effect);
-}
